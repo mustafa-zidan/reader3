@@ -65,6 +65,7 @@ class Book:
     source_file: str
     processed_at: str
     version: str = "3.0"
+    is_pdf: bool = False  # Flag to indicate if this is a PDF book
 
 
 # --- Utilities ---
@@ -246,7 +247,8 @@ def process_pdf(pdf_path: str, output_dir: str) -> Book:
         toc=toc_structure,
         images=image_map,
         source_file=os.path.basename(pdf_path),
-        processed_at=datetime.now().isoformat()
+        processed_at=datetime.now().isoformat(),
+        is_pdf=True
     )
     
     return final_book

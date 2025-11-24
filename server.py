@@ -152,8 +152,39 @@ async def read_chapter(request: Request, book_id: str, chapter_index: int):
         "chapter_index": chapter_index,
         "book_id": book_id,
         "prev_idx": prev_idx,
-        "next_idx": next_idx
+        "next_idx": next_idx,
+        "is_pdf": book.is_pdf
     })
+
+@app.get("/read/{book_id}/pages/{start}/{count}")
+async def get_pages(book_id: str, start: int, count: int):
+    """
+    Fetches multiple pages for infinite scrolling (PDF only).
+    Returns JSON with array of page content.
+    """
+    book = load_book_cached(book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    
+    if not book.is_pdf:
+        raise HTTPException(status_code=400, detail="Infinite scroll only for PDFs")
+    
+    total = len(book.spine)
+    if start >= total:
+        return {"pages": []}
+    
+    end = min(start + count, total)
+    pages = []
+    
+    for i in range(start, end):
+        chapter = book.spine[i]
+        pages.append({
+            "index": i,
+            "title": chapter.title,
+            "content": chapter.content
+        })
+    
+    return {"pages": pages, "total": total}
 
 @app.get("/read/{book_id}/images/{image_name}")
 async def serve_image(book_id: str, image_name: str):

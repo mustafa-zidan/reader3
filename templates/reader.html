@@ -113,10 +113,11 @@
                 <button class="toolbar-btn" type="button" onclick="copyChapterContent()">Copy Chapter</button>
             </div>
             <div id="copy-status" aria-live="polite"></div>
-            <div class="book-content">
+            <div class="book-content" id="book-content">
                 {{ current_chapter.content | safe }}
             </div>
 
+            {% if not is_pdf %}
             <div class="chapter-nav">
                 {% if prev_idx is not none %}
                     <a href="/read/{{ book_id }}/{{ prev_idx }}" class="nav-btn">← Previous</a>
@@ -134,10 +135,85 @@
                     <span class="nav-btn disabled">Next →</span>
                 {% endif %}
             </div>
+            {% else %}
+            <div id="pdf-scroll-indicator" style="text-align: center; color: #999; padding: 20px; font-family: -apple-system, sans-serif; font-size: 0.9em;">
+                <span id="page-count">Page {{ chapter_index + 1 }} of {{ book.spine|length }}</span>
+            </div>
+            {% endif %}
         </div>
     </div>
 
     <script>
+        const isPDF = {{ 'true' if is_pdf else 'false' }};
+        const bookId = "{{ book_id }}";
+        const totalPages = {{ book.spine|length }};
+        let currentPageIndex = {{ chapter_index }};
+        let loadingPages = false;
+        
+        {% if is_pdf %}
+        // Infinite scroll setup for PDFs
+        function loadMorePages() {
+            if (loadingPages || currentPageIndex >= totalPages - 1) {
+                return;
+            }
+            
+            loadingPages = true;
+            const nextStart = currentPageIndex + 1;
+            
+            fetch(`/read/${bookId}/pages/${nextStart}/5`)
+                .then(resp => resp.json())
+                .then(data => {
+                    if (data.pages && data.pages.length > 0) {
+                        const contentDiv = document.getElementById('book-content');
+                        data.pages.forEach(page => {
+                            const pageWrapper = document.createElement('div');
+                            pageWrapper.className = 'pdf-page';
+                            pageWrapper.style.marginBottom = '40px';
+                            pageWrapper.innerHTML = `
+                                <div style="text-align: center; color: #999; font-size: 0.85em; margin-bottom: 20px; font-family: -apple-system, sans-serif;">
+                                    ${page.title}
+                                </div>
+                                ${page.content}
+                            `;
+                            contentDiv.appendChild(pageWrapper);
+                        });
+                        
+                        currentPageIndex = Math.max(...data.pages.map(p => p.index));
+                        updatePageIndicator();
+                    }
+                    loadingPages = false;
+                })
+                .catch(err => {
+                    console.error('Failed to load pages:', err);
+                    loadingPages = false;
+                });
+        }
+        
+        function updatePageIndicator() {
+            const indicator = document.getElementById('page-count');
+            if (indicator) {
+                indicator.textContent = `Page ${currentPageIndex + 1} of ${totalPages}`;
+            }
+        }
+        
+        // Set up infinite scroll listener
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !loadingPages) {
+                    loadMorePages();
+                }
+            });
+        }, { rootMargin: '500px' });
+        
+        window.addEventListener('load', () => {
+            const sentinel = document.createElement('div');
+            sentinel.id = 'infinite-scroll-sentinel';
+            sentinel.style.height = '1px';
+            document.getElementById('book-content').parentElement.appendChild(sentinel);
+            observer.observe(sentinel);
+        });
+        {% endif %}
+        
         // Helper to map TOC filenames to Spine Indices
         // Pass the spine data from python to JS
         const spineMap = {
