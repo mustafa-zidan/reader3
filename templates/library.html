@@ -19,9 +19,17 @@
         }
 
         h1 {
-            color: #333;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
+            color: #1a1a1a;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+
+        .library-header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .book-grid {
@@ -35,8 +43,16 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
         }
 
         .book-title {
@@ -63,43 +79,53 @@
             background: #3498db;
             color: white;
             text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            border-radius: 5px;
             font-size: 0.9em;
+            font-weight: 500;
             border: none;
             cursor: pointer;
             flex: 1;
             text-align: center;
+            transition: all 0.2s ease;
         }
 
         .btn:hover {
             background: #2980b9;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
         }
 
         .btn-delete {
             background: #e74c3c;
             flex: 0 0 auto;
-            padding: 8px 12px;
+            padding: 10px 12px;
         }
 
         .btn-delete:hover {
             background: #c0392b;
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Library</h1>
+        <div class="library-header">
+            <h1>Library</h1>
+        </div>
 
         <div class="upload-section"
-            style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h3 style="margin-top: 0;">Add a Book</h3>
+            style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f0f0f0;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 1.1em;">Add a Book</h3>
             <form action="/upload" method="post" enctype="multipart/form-data"
                 style="display: flex; gap: 10px; align-items: center;"
                 onsubmit="document.getElementById('upload-btn').innerText='Processing...'; document.getElementById('upload-btn').disabled=true;">
-                <input type="file" name="file" accept=".epub,.pdf" required style="flex-grow: 1; padding: 5px;">
-                <button type="submit" class="btn" id="upload-btn">Upload Book</button>
+                <input type="file" name="file" accept=".epub,.pdf" required style="flex-grow: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+                <button type="submit" class="btn" id="upload-btn" style="flex: 0 0 auto; padding: 10px 20px;">Upload</button>
             </form>
         </div>
 

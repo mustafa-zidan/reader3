@@ -15,24 +15,25 @@
         .nav-header { font-family: -apple-system, sans-serif; font-weight: bold; color: #495057; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #dee2e6; }
         .nav-home { display: block; margin-bottom: 20px; color: #3498db; text-decoration: none; font-family: -apple-system, sans-serif; font-size: 0.9em; }
 
-        #sidebar-toggle { position: fixed; top: 15px; left: 15px; z-index: 1000; border: 1px solid #495057; background: rgba(255, 255, 255, 0.9); color: #495057; padding: 6px 12px; border-radius: 4px; font-family: -apple-system, sans-serif; font-size: 0.85em; cursor: pointer; transition: background 0.15s, color 0.15s; }
-        #sidebar-toggle:hover { background: #495057; color: #fff; }
+        #sidebar-toggle { position: fixed; top: 15px; left: 15px; z-index: 1000; border: 1px solid #ddd; background: rgba(255, 255, 255, 0.95); color: #495057; padding: 8px 14px; border-radius: 5px; font-family: -apple-system, sans-serif; font-size: 0.85em; font-weight: 500; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        #sidebar-toggle:hover { background: #495057; color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
 
         /* TOC Tree */
         ul.toc-list { list-style: none; padding-left: 0; margin: 0; }
         ul.toc-list ul { padding-left: 20px; } /* Indent children */
         li.toc-item { margin-bottom: 8px; }
-        a.toc-link { text-decoration: none; color: #495057; font-size: 0.95em; display: block; padding: 8px 10px; line-height: 1.4; border-radius: 4px; transition: background-color 0.15s; }
-        a.toc-link:hover { color: #000; text-decoration: underline; background-color: #e9ecef; }
-        a.toc-link.active { color: #fff; font-weight: bold; background: linear-gradient(135deg, #d63384 0%, #c21f6b 100%); box-shadow: 0 2px 4px rgba(214, 51, 132, 0.3); }
+        a.toc-link { text-decoration: none; color: #495057; font-size: 0.95em; display: block; padding: 10px 12px; line-height: 1.4; border-radius: 4px; transition: all 0.2s ease; border-left: 3px solid transparent; margin-left: -3px; }
+        a.toc-link:hover { color: #000; background-color: #f1f3f5; border-left-color: #d63384; }
+        a.toc-link.active { color: #fff; font-weight: 600; background: linear-gradient(135deg, #d63384 0%, #c21f6b 100%); box-shadow: 0 2px 6px rgba(214, 51, 132, 0.35); border-left-color: #fff; }
 
         /* Main Content */
         #main { flex-grow: 1; overflow-y: auto; position: relative; scroll-behavior: smooth; }
         .content-container { max-width: 700px; margin: 0 auto; padding: 60px 40px 60px 40px; line-height: 1.8; font-size: 1.15em; color: #212529; background: #fff; position: relative; z-index: 1; }
-        .content-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; font-family: -apple-system, sans-serif; }
-        .toolbar-btn { border: 1px solid #adb5bd; background: #fff; color: #495057; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 0.9em; transition: background 0.15s, color 0.15s; }
-        .toolbar-btn:hover { background: #495057; color: #fff; }
-        #copy-status { font-family: -apple-system, sans-serif; font-size: 0.85em; color: #198754; text-align: right; min-height: 1.2em; opacity: 0; transition: opacity 0.2s ease-in-out; }
+        .content-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 25px; font-family: -apple-system, sans-serif; }
+        .toolbar-btn { border: 1px solid #ddd; background: #fff; color: #495057; padding: 9px 16px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 500; transition: all 0.2s ease; }
+        .toolbar-btn:hover { background: #495057; color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .toolbar-btn:active { transform: scale(0.97); }
+        #copy-status { font-family: -apple-system, sans-serif; font-size: 0.85em; color: #198754; text-align: right; min-height: 1.2em; opacity: 0; transition: opacity 0.3s ease-in-out; font-weight: 500; }
 
         /* Content Styling (Basic normalization for the book HTML) */
         .book-content { position: relative; z-index: 1; }
@@ -42,9 +43,10 @@
 
         /* Navigation Footer */
         .chapter-nav { position: relative; z-index: 10; display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; padding-bottom: 20px; border-top: 1px solid #eee; background: #fff; font-family: -apple-system, sans-serif; }
-        .nav-btn { text-decoration: none; color: #3498db; font-weight: bold; padding: 10px 20px; border: 1px solid #3498db; border-radius: 4px; transition: all 0.2s; }
-        .nav-btn:hover { background: #3498db; color: white; }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; border-color: #ccc; color: #ccc; }
+        .nav-btn { text-decoration: none; color: #3498db; font-weight: 600; padding: 12px 22px; border: 1px solid #3498db; border-radius: 5px; transition: all 0.2s ease; }
+        .nav-btn:hover { background: #3498db; color: white; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+        .nav-btn:active { transform: scale(0.96); }
+        .nav-btn.disabled { opacity: 0.4; pointer-events: none; border-color: #ddd; color: #bbb; }
 
     </style>
 </head>
