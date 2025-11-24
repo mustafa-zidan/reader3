@@ -8,8 +8,6 @@ This project was 90% vibe coded just to illustrate how one can very easily [read
 
 ## Usage
 
-## Usage
-
 1. **Run the App**:
    - If you built the executable, just double-click `Reader3` (or `Reader3.app`).
    - Or run from source: `uv run python launcher.py`
@@ -22,6 +20,10 @@ This project was 90% vibe coded just to illustrate how one can very easily [read
 3. **Read**:
    - Click "Read Book" to start reading.
    - Copy-paste text to your LLM as needed.
+
+4. **Close**:
+   - Close the browser window or press `Cmd+Q`.
+   - The server stops automatically.
 
 ## License
 
