@@ -57,7 +57,7 @@ jobs:
       - name: Zip Windows executable
         run: |
           cd dist
-          Compress-Archive -Path Reader3.exe -DestinationPath Reader3-Windows.zip
+          Compress-Archive -Path Reader3 -DestinationPath Reader3-Windows.zip
       
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
