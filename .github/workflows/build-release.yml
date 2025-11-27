@@ -1,0 +1,110 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller fastapi uvicorn python-multipart jinja2 ebooklib beautifulsoup4 lxml pdfplumber
+      
+      - name: Build macOS executable
+        run: python build_executable.py
+      
+      - name: Zip macOS app
+        run: |
+          cd dist
+          zip -r Reader3-macOS.zip Reader3.app
+      
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reader3-macOS
+          path: dist/Reader3-macOS.zip
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller fastapi uvicorn python-multipart jinja2 ebooklib beautifulsoup4 lxml pdfplumber
+      
+      - name: Build Windows executable
+        run: python build_executable.py
+      
+      - name: Zip Windows executable
+        run: |
+          cd dist
+          Compress-Archive -Path Reader3.exe -DestinationPath Reader3-Windows.zip
+      
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reader3-Windows
+          path: dist/Reader3-Windows.zip
+
+  release:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Reader3-macOS
+      
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Reader3-Windows
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            Reader3-macOS.zip
+            Reader3-Windows.zip
+          body: |
+            ## Features
+            - Read ePub and PDF files
+            - Chapter navigation
+            - Text selection and batch copy for PDFs
+            - Light/dark mode support
+            - Bookmark support
+
+            ## Installation
+            
+            ### macOS
+            1. Download Reader3-macOS.zip
+            2. Unzip the file
+            3. Move Reader3.app to your Applications folder
+            4. Double-click to launch
+
+            ### Windows
+            1. Download Reader3-Windows.zip
+            2. Unzip the file
+            3. Run Reader3.exe
