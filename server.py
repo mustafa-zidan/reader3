@@ -43,6 +43,8 @@ else:
     BOOKS_DIR = "."
 
 print(f"Books directory: {BOOKS_DIR}")
+print(f"Templates directory: {templates_dir}")
+print(f"Current working directory: {os.getcwd()}")
 
 @lru_cache(maxsize=10)
 def load_book_cached(folder_name: str) -> Optional[Book]:
