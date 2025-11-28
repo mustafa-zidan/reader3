@@ -321,4 +321,3 @@ class TestExportAPI:
         assert response.status_code == 200
         # Should be valid JSON
         assert "exported_at" in response.text
-
