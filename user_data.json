@@ -353,6 +353,13 @@
       "reading_time_seconds": 0
     }
   },
-  "search_history": [],
+  "search_history": [
+    {
+      "query": "snake",
+      "book_id": null,
+      "timestamp": "2025-11-28T15:06:14.705876",
+      "results_count": 102
+    }
+  ],
   "version": "1.0"
 }

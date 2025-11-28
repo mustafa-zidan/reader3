@@ -244,7 +244,7 @@
             container.innerHTML = '<div class="search-results"><div class="no-results">Searching...</div></div>';
             
             try {
-                const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
                 if (response.ok) {
                     const data = await response.json();
                     renderGlobalSearchResults(data.results, query);

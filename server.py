@@ -68,7 +68,7 @@ print(f"Templates directory: {templates_dir}")
 print(f"Current working directory: {os.getcwd()}")
 
 
-@lru_cache(maxsize=10)
+@lru_cache(maxsize=50)
 def load_book_cached(folder_name: str) -> Optional[Book]:
     """
     Loads the book from the pickle file.
@@ -449,6 +449,19 @@ async def update_highlight(book_id: str, highlight_id: str, request: Request):
 # ============================================================================
 
 
+def get_all_book_ids():
+    """Get list of all book IDs in the library."""
+    book_ids = []
+    if os.path.exists(BOOKS_DIR):
+        for item in os.listdir(BOOKS_DIR):
+            item_path = os.path.join(BOOKS_DIR, item)
+            if item.endswith("_data") and os.path.isdir(item_path):
+                pkl_path = os.path.join(item_path, "book.pkl")
+                if os.path.exists(pkl_path):
+                    book_ids.append(item)
+    return book_ids
+
+
 @app.get("/api/search")
 async def search_books(q: str, book_id: str = None):
     """
@@ -456,83 +469,82 @@ async def search_books(q: str, book_id: str = None):
     Returns matching passages with context.
     """
     if not q or len(q) < 2:
-        return {"results": [], "query": q}
+        return {"results": [], "query": q, "total": 0}
 
     results = []
     query_lower = q.lower()
+    max_results = 100  # Total results limit
+    max_per_chapter = 3  # Limit per chapter to spread results
 
     # Determine which books to search
-    if book_id:
-        book_ids = [book_id]
-    else:
-        # Search all books
-        book_ids = []
-        if os.path.exists(BOOKS_DIR):
-            for item in os.listdir(BOOKS_DIR):
-                item_path = os.path.join(BOOKS_DIR, item)
-                if item.endswith("_data") and os.path.isdir(item_path):
-                    book_ids.append(item)
+    book_ids = [book_id] if book_id else get_all_book_ids()
 
     for bid in book_ids:
+        if len(results) >= max_results:
+            break
+
         book = load_book_cached(bid)
         if not book:
             continue
 
+        book_title = book.metadata.title
+
         for idx, chapter in enumerate(book.spine):
+            if len(results) >= max_results:
+                break
+
             # Search in plain text
-            text = chapter.text if hasattr(chapter, "text") else ""
+            text = getattr(chapter, "text", "") or ""
+            if not text:
+                continue
+
             text_lower = text.lower()
 
-            # Find all occurrences
+            # Quick check: skip if query not in chapter at all
+            if query_lower not in text_lower:
+                continue
+
+            # Find occurrences
+            chapter_results = 0
             start = 0
-            while True:
+            while chapter_results < max_per_chapter:
                 pos = text_lower.find(query_lower, start)
                 if pos == -1:
                     break
 
-                # Extract context (100 chars before and after)
-                context_start = max(0, pos - 100)
-                context_end = min(len(text), pos + len(q) + 100)
+                # Extract context (80 chars before and after)
+                context_start = max(0, pos - 80)
+                context_end = min(len(text), pos + len(q) + 80)
                 context = text[context_start:context_end]
 
-                # Add ellipsis if truncated
+                # Clean up context - trim to word boundaries
                 if context_start > 0:
+                    space_idx = context.find(" ")
+                    if space_idx > 0 and space_idx < 20:
+                        context = context[space_idx + 1:]
                     context = "..." + context
                 if context_end < len(text):
+                    space_idx = context.rfind(" ")
+                    if space_idx > len(context) - 20:
+                        context = context[:space_idx]
                     context = context + "..."
 
-                results.append(
-                    {
-                        "book_id": bid,
-                        "book_title": book.metadata.title,
-                        "chapter_index": idx,
-                        "chapter_title": chapter.title,
-                        "context": context,
-                        "position": pos,
-                    }
-                )
+                results.append({
+                    "book_id": bid,
+                    "book_title": book_title,
+                    "chapter_index": idx,
+                    "chapter_title": chapter.title,
+                    "context": context.strip(),
+                    "position": pos,
+                })
 
-                start = pos + 1
-
-                # Limit results per chapter
-                if (
-                    len(
-                        [
-                            r
-                            for r in results
-                            if r["book_id"] == bid and r["chapter_index"] == idx
-                        ]
-                    )
-                    >= 5
-                ):
-                    break
-
-        # Limit total results
-        if len(results) >= 50:
-            break
+                chapter_results += 1
+                start = pos + len(q)  # Skip past this match
 
     # Record search in history
-    search_query = SearchQuery(query=q, book_id=book_id, results_count=len(results))
+    search_query = SearchQuery(
+        query=q, book_id=book_id, results_count=len(results)
+    )
     user_data_manager.add_search(search_query)
 
     return {"query": q, "results": results, "total": len(results)}
