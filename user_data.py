@@ -205,6 +205,23 @@ class UserDataManager:
                 return True
         return False
     
+    def update_highlight_color(self, book_id: str, highlight_id: str, color: str) -> bool:
+        """Update a highlight's color."""
+        valid_colors = ['yellow', 'green', 'blue', 'pink', 'purple']
+        if color not in valid_colors:
+            return False
+        
+        data = self.load()
+        if book_id not in data.highlights:
+            return False
+        
+        for h in data.highlights[book_id]:
+            if h.id == highlight_id:
+                h.color = color
+                self.save()
+                return True
+        return False
+    
     # Bookmarks
     def add_bookmark(self, bookmark: Bookmark) -> Bookmark:
         """Add a bookmark."""

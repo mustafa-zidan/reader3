@@ -268,6 +268,184 @@ class TestHighlights:
         for h, expected_color in zip(highlights, colors):
             assert h.color == expected_color
 
+    def test_delete_highlight_nonexistent(self, manager):
+        """Test deleting a highlight that doesn't exist."""
+        result = manager.delete_highlight("book1", "nonexistent_id")
+        assert result is False
+
+    def test_delete_highlight_wrong_book(self, manager):
+        """Test deleting a highlight from wrong book returns False."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+
+        # Try to delete from different book
+        result = manager.delete_highlight("book2", highlight.id)
+        assert result is False
+
+        # Original should still exist
+        highlights = manager.get_highlights("book1")
+        assert len(highlights) == 1
+
+    def test_delete_multiple_highlights(self, manager):
+        """Test deleting multiple highlights one by one."""
+        highlight_ids = []
+        for i in range(3):
+            highlight = Highlight(
+                id=generate_id(),
+                book_id="book1",
+                chapter_index=i,
+                text=f"Text {i}",
+                color="yellow"
+            )
+            manager.add_highlight(highlight)
+            highlight_ids.append(highlight.id)
+
+        # Delete first highlight
+        result = manager.delete_highlight("book1", highlight_ids[0])
+        assert result is True
+        assert len(manager.get_highlights("book1")) == 2
+
+        # Delete second highlight
+        result = manager.delete_highlight("book1", highlight_ids[1])
+        assert result is True
+        assert len(manager.get_highlights("book1")) == 1
+
+        # Delete last highlight
+        result = manager.delete_highlight("book1", highlight_ids[2])
+        assert result is True
+        assert len(manager.get_highlights("book1")) == 0
+
+    def test_update_highlight_color(self, manager):
+        """Test changing highlight color."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+
+        # Change to green
+        result = manager.update_highlight_color("book1", highlight.id, "green")
+        assert result is True
+
+        highlights = manager.get_highlights("book1")
+        assert highlights[0].color == "green"
+
+    def test_update_highlight_color_all_colors(self, manager):
+        """Test changing highlight to all valid colors."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+
+        colors = ["green", "blue", "pink", "purple", "yellow"]
+        for color in colors:
+            result = manager.update_highlight_color("book1", highlight.id, color)
+            assert result is True
+            highlights = manager.get_highlights("book1")
+            assert highlights[0].color == color
+
+    def test_update_highlight_color_invalid(self, manager):
+        """Test changing highlight to invalid color fails."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+
+        # Try invalid colors
+        result = manager.update_highlight_color("book1", highlight.id, "red")
+        assert result is False
+
+        result = manager.update_highlight_color("book1", highlight.id, "orange")
+        assert result is False
+
+        result = manager.update_highlight_color("book1", highlight.id, "")
+        assert result is False
+
+        # Original color should be unchanged
+        highlights = manager.get_highlights("book1")
+        assert highlights[0].color == "yellow"
+
+    def test_update_highlight_color_nonexistent(self, manager):
+        """Test changing color of nonexistent highlight returns False."""
+        result = manager.update_highlight_color("book1", "nonexistent", "green")
+        assert result is False
+
+    def test_update_highlight_color_wrong_book(self, manager):
+        """Test changing color with wrong book_id returns False."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+
+        result = manager.update_highlight_color("book2", highlight.id, "green")
+        assert result is False
+
+        # Original should be unchanged
+        highlights = manager.get_highlights("book1")
+        assert highlights[0].color == "yellow"
+
+    def test_highlight_persistence_after_delete(self, manager, temp_data_dir):
+        """Test that deletion persists after reloading."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+        highlight_id = highlight.id
+
+        # Delete the highlight
+        manager.delete_highlight("book1", highlight_id)
+
+        # Create new manager and verify deletion persisted
+        new_manager = UserDataManager(temp_data_dir)
+        highlights = new_manager.get_highlights("book1")
+        assert len(highlights) == 0
+
+    def test_highlight_color_persistence(self, manager, temp_data_dir):
+        """Test that color change persists after reloading."""
+        highlight = Highlight(
+            id=generate_id(),
+            book_id="book1",
+            chapter_index=0,
+            text="Test text",
+            color="yellow"
+        )
+        manager.add_highlight(highlight)
+        highlight_id = highlight.id
+
+        # Change the color
+        manager.update_highlight_color("book1", highlight_id, "purple")
+
+        # Create new manager and verify color persisted
+        new_manager = UserDataManager(temp_data_dir)
+        highlights = new_manager.get_highlights("book1")
+        assert len(highlights) == 1
+        assert highlights[0].color == "purple"
+
 
 class TestReadingProgress:
     """Tests for reading progress functionality."""

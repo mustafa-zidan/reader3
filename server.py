@@ -444,6 +444,17 @@ async def update_highlight(book_id: str, highlight_id: str, request: Request):
     raise HTTPException(status_code=404, detail="Highlight not found")
 
 
+@app.put("/api/highlights/{book_id}/{highlight_id}/color")
+async def update_highlight_color(book_id: str, highlight_id: str, request: Request):
+    """Update a highlight's color."""
+    data = await request.json()
+    color = data.get("color", "yellow")
+
+    if user_data_manager.update_highlight_color(book_id, highlight_id, color):
+        return {"status": "updated"}
+    raise HTTPException(status_code=404, detail="Highlight not found")
+
+
 # ============================================================================
 # Search API
 # ============================================================================

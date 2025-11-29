@@ -99,13 +99,13 @@
         
         /* Highlight color picker in toolbar */
         .highlight-colors { display: flex; gap: 4px; align-items: center; }
-        .highlight-color-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
-        .highlight-color-btn:hover { transform: scale(1.2); }
-        .highlight-color-btn.yellow { background: #ffeb3b; }
-        .highlight-color-btn.green { background: #4caf50; }
-        .highlight-color-btn.blue { background: #2196f3; }
-        .highlight-color-btn.pink { background: #e91e63; }
-        .highlight-color-btn.purple { background: #9c27b0; }
+        #selection-toolbar .highlight-color-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; padding: 0; }
+        #selection-toolbar .highlight-color-btn:hover { transform: scale(1.2); border-color: #fff; }
+        #selection-toolbar .highlight-color-btn.yellow { background: #ffeb3b; }
+        #selection-toolbar .highlight-color-btn.green { background: #4caf50; }
+        #selection-toolbar .highlight-color-btn.blue { background: #2196f3; }
+        #selection-toolbar .highlight-color-btn.pink { background: #e91e63; }
+        #selection-toolbar .highlight-color-btn.purple { background: #9c27b0; }
         
         /* Bookmarks panel */
         #bookmarks-panel { position: fixed; top: 60px; right: -350px; width: 320px; height: calc(100vh - 80px); background: #fff; border-left: 1px solid #ddd; box-shadow: -4px 0 12px rgba(0,0,0,0.1); z-index: 999; transition: right 0.3s ease; overflow-y: auto; padding: 20px; font-family: -apple-system, sans-serif; }
@@ -163,6 +163,23 @@
         .lazy-image { background: #f0f0f0; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #999; }
         .lazy-image.loaded { min-height: auto; background: none; }
 
+        /* Highlight context menu */
+        #highlight-context-menu { display: none; position: fixed; z-index: 1100; background: #fff; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); font-family: -apple-system, sans-serif; min-width: 160px; overflow: hidden; }
+        #highlight-context-menu.visible { display: block; }
+        .highlight-menu-item { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9em; transition: background 0.2s; }
+        .highlight-menu-item:hover { background: #f5f5f5; }
+        .highlight-menu-item.delete { color: #e74c3c; }
+        .highlight-menu-item.delete:hover { background: #fdf2f2; }
+        .highlight-menu-colors { display: flex; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #eee; }
+        .highlight-menu-color { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
+        .highlight-menu-color:hover { transform: scale(1.15); }
+        .highlight-menu-color.active { border-color: #333; }
+        .highlight-menu-color.yellow { background: #ffeb3b; }
+        .highlight-menu-color.green { background: #4caf50; }
+        .highlight-menu-color.blue { background: #2196f3; }
+        .highlight-menu-color.pink { background: #e91e63; }
+        .highlight-menu-color.purple { background: #9c27b0; }
+
     </style>
 </head>
 <body class="{{ 'is-pdf' if is_pdf else '' }}">
@@ -197,6 +214,19 @@
     
     <!-- Copy toast notification -->
     <div id="copy-toast"></div>
+    
+    <!-- Highlight context menu -->
+    <div id="highlight-context-menu">
+        <div class="highlight-menu-colors">
+            <div class="highlight-menu-color yellow" onclick="changeHighlightColor('yellow')" title="Yellow"></div>
+            <div class="highlight-menu-color green" onclick="changeHighlightColor('green')" title="Green"></div>
+            <div class="highlight-menu-color blue" onclick="changeHighlightColor('blue')" title="Blue"></div>
+            <div class="highlight-menu-color pink" onclick="changeHighlightColor('pink')" title="Pink"></div>
+            <div class="highlight-menu-color purple" onclick="changeHighlightColor('purple')" title="Purple"></div>
+        </div>
+        <div class="highlight-menu-item" onclick="copyHighlightText()">📋 Copy text</div>
+        <div class="highlight-menu-item delete" onclick="deleteCurrentHighlight()">🗑️ Delete highlight</div>
+    </div>
     
     <!-- Resume reading banner -->
     <div id="resume-banner">
@@ -640,7 +670,7 @@
             const span = document.createElement('span');
             span.className = `highlight-mark highlight-${color}`;
             span.dataset.highlightId = id;
-            span.onclick = () => showHighlightMenu(id);
+            span.onclick = (e) => showHighlightMenu(id, e);
             
             try {
                 range.surroundContents(span);
@@ -682,10 +712,102 @@
             });
         }
         
-        function showHighlightMenu(id) {
-            if (confirm('Delete this highlight?')) {
-                deleteHighlight(id);
+        let currentHighlightId = null;
+        
+        function showHighlightMenu(id, event) {
+            event = event || window.event;
+            event.preventDefault();
+            event.stopPropagation();
+            
+            currentHighlightId = id;
+            const menu = document.getElementById('highlight-context-menu');
+            
+            // Get current highlight color
+            const highlight = userHighlights.find(h => h.id === id);
+            const currentColor = highlight ? highlight.color : 'yellow';
+            
+            // Update active color indicator
+            menu.querySelectorAll('.highlight-menu-color').forEach(el => {
+                el.classList.remove('active');
+                if (el.classList.contains(currentColor)) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // Position the menu near the click
+            const x = event.clientX || event.pageX;
+            const y = event.clientY || event.pageY;
+            
+            menu.style.left = `${Math.min(x, window.innerWidth - 180)}px`;
+            menu.style.top = `${Math.min(y, window.innerHeight - 150)}px`;
+            menu.classList.add('visible');
+            
+            // Close menu when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', closeHighlightMenu);
+            }, 10);
+        }
+        
+        function closeHighlightMenu() {
+            const menu = document.getElementById('highlight-context-menu');
+            menu.classList.remove('visible');
+            document.removeEventListener('click', closeHighlightMenu);
+            currentHighlightId = null;
+        }
+        
+        function deleteCurrentHighlight() {
+            if (currentHighlightId) {
+                deleteHighlight(currentHighlightId);
+                closeHighlightMenu();
             }
+        }
+        
+        function copyHighlightText() {
+            if (!currentHighlightId) return;
+            
+            const highlight = userHighlights.find(h => h.id === currentHighlightId);
+            if (highlight && highlight.text) {
+                navigator.clipboard.writeText(highlight.text).then(() => {
+                    showToast('Text copied to clipboard');
+                }).catch(() => {
+                    showToast('Failed to copy text', 'error');
+                });
+            }
+            closeHighlightMenu();
+        }
+        
+        async function changeHighlightColor(newColor) {
+            if (!currentHighlightId) return;
+            
+            const highlight = userHighlights.find(h => h.id === currentHighlightId);
+            if (!highlight || highlight.color === newColor) {
+                closeHighlightMenu();
+                return;
+            }
+            
+            try {
+                // Update on server
+                await fetch(`/api/highlights/${encodeURIComponent(bookId)}/${currentHighlightId}/color`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ color: newColor })
+                });
+                
+                // Update visual highlight
+                const el = document.querySelector(`[data-highlight-id="${currentHighlightId}"]`);
+                if (el) {
+                    el.className = `highlight-mark highlight-${newColor}`;
+                }
+                
+                // Update local data
+                highlight.color = newColor;
+                renderHighlightsList();
+                showToast(`Changed to ${newColor}`);
+            } catch (error) {
+                console.error('Failed to change highlight color:', error);
+                showToast('Failed to change color', 'error');
+            }
+            closeHighlightMenu();
         }
         
         async function deleteHighlight(id) {
@@ -760,11 +882,11 @@
             try {
                 const response = await fetch(`/api/export/${encodeURIComponent(bookId)}?format=${format}`);
                 if (response.ok) {
-                    const data = await response.json();
-                    const content = data.content;
+                    const content = await response.text();
                     const filename = `${bookId}_notes.${format === 'markdown' ? 'md' : 'json'}`;
                     
-                    const blob = new Blob([content], { type: 'text/plain' });
+                    const mimeType = format === 'markdown' ? 'text/markdown' : 'application/json';
+                    const blob = new Blob([content], { type: mimeType });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -773,6 +895,8 @@
                     URL.revokeObjectURL(url);
                     
                     showToast('Notes exported! 📁');
+                } else {
+                    showToast('Export failed', 'error');
                 }
             } catch (error) {
                 console.error('Export failed:', error);
