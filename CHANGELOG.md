@@ -2,6 +2,22 @@
 
 All notable changes to Reader3 will be documented in this file.
 
+## [1.2.0] - 2025-11-28
+
+### Added
+- **Highlight Context Menu** — Click on any highlight to access a rich context menu with options to change color, copy text, or delete
+- **Change Highlight Color** — Easily change the color of existing highlights without deleting and recreating them
+- **Copy Highlight Text** — One-click copy of highlighted text from the context menu
+- **Comprehensive Test Coverage** — Added 26 new tests for highlights and export functionality
+
+### Fixed
+- **Highlight Color Picker** — Fixed issue where highlight color buttons showed black instead of their actual colors in the selection toolbar
+- **Export Functionality** — Fixed JSON and Markdown export returning undefined/errors for highlights
+
+### Improved
+- **Delete Highlights UX** — Replaced basic confirm dialog with a polished context menu for better user experience
+- **Export Tests** — Added thorough tests for JSON/Markdown export with highlights, bookmarks, color emojis, content types, and edge cases
+
 ## [1.1.0] - 2025-11-28
 
 ### Added
