@@ -2,6 +2,75 @@
 
 All notable changes to Reader3 will be documented in this file.
 
+## [1.4.0] - 2025-11-30
+
+### Added - Premium PDF Features 📄
+
+#### Traditional PDF Viewing Experience
+- **Page-as-Image Rendering** — PDFs now render each page as a high-quality image, exactly like traditional PDF readers (no more jumbled text!)
+- **Copy Page Text Button** — Each PDF page has a "Copy Page Text" button to copy the full extracted text
+- **Preserves Visual Layout** — Images, diagrams, and formatting appear exactly as in the original PDF
+
+#### PDF Outline/TOC Extraction
+- **Native PDF Bookmarks** — Automatically extract and display the PDF's built-in table of contents/bookmarks for hierarchical navigation
+- **Intelligent Fallback** — Falls back to page-based navigation when no native outline exists
+
+#### PDF Page Thumbnails
+- **Quick Visual Navigation** — Generate thumbnail previews for all PDF pages
+- **Thumbnail API** — New endpoint to list and serve page thumbnails
+
+#### PDF Annotations Support
+- **Read Native Annotations** — Extract highlights, underlines, strikeouts, notes, and other annotations from PDFs
+- **Annotation Details** — Includes color, author, creation date, and bounding box coordinates
+- **Filter by Page** — API supports filtering annotations by specific page
+
+#### PDF Text Layer
+- **Word-level Positioning** — Extract text with precise bounding box coordinates for each word
+- **Accurate Search** — Full-text search still works on all PDF content
+- **Text Block API** — New endpoint to get positioned text data for any page
+
+#### PDF Page Export
+- **Export Page Ranges** — Export selected pages from a PDF to a new PDF file
+- **Flexible Range Selection** — Choose start and end pages for extraction
+
+#### PDF Statistics
+- **Comprehensive Stats** — Total pages, word count, image count, annotation count
+- **Reading Time Estimate** — Automatically calculate estimated reading time
+- **Content Overview** — Quick stats on pages with images, annotations, etc.
+
+#### PDF Search with Positions
+- **Position-aware Search** — Search returns bounding box coordinates for each match
+- **Visual Highlighting** — Enable frontend to highlight exact positions of matches
+- **Page-filtered Search** — Option to search within specific pages only
+
+### New API Endpoints
+- `GET /api/pdf/{book_id}/stats` — Get comprehensive PDF statistics
+- `GET /api/pdf/{book_id}/thumbnails` — List all page thumbnails
+- `GET /read/{book_id}/thumbnails/{thumb_name}` — Serve thumbnail images
+- `GET /api/pdf/{book_id}/annotations` — Get PDF annotations (with optional page filter)
+- `GET /api/pdf/{book_id}/search-positions` — Search with position data
+- `GET /api/pdf/{book_id}/page/{page_num}` — Get detailed page information
+- `GET /api/pdf/{book_id}/outline` — Get hierarchical TOC/outline
+- `POST /api/pdf/{book_id}/export` — Export page range to new PDF
+- `GET /api/pdf/{book_id}/text-layer/{page_num}` — Get positioned text blocks
+
+### Fixed
+- **PDF Text Rendering** — Fixed jumbled/overlapping text issue by rendering pages as images instead of extracting HTML
+
+### New Data Structures
+- `PDFAnnotation` — Stores annotation type, content, position, color, author, date
+- `PDFTextBlock` — Stores word text with precise x0, y0, x1, y1 coordinates
+- `PDFPageData` — Stores page dimensions, rotation, text blocks, annotations, image/word counts
+
+### Technical
+- Enhanced `Book` dataclass with PDF-specific fields (`pdf_page_data`, `pdf_total_pages`, `pdf_has_toc`, `pdf_thumbnails_generated`)
+- New functions: `extract_pdf_outline()`, `extract_pdf_annotations()`, `extract_pdf_text_blocks()`, `generate_pdf_page_image()`, `generate_pdf_thumbnail()`, `export_pdf_pages()`, `search_pdf_text_positions()`, `get_pdf_page_stats()`
+
+### Tests
+- Added 20 new tests for PDF data structures and functions
+- Added 28 new tests for PDF API endpoints
+- Total: 167 tests passing
+
 ## [1.3.0] - 2025-01-17
 
 ### Added

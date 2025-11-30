@@ -91,6 +91,18 @@
         .pdf-page-header { text-align: center; color: #999; font-size: 0.85em; margin-bottom: 20px; font-family: -apple-system, sans-serif; position: sticky; top: 0; background: linear-gradient(to bottom, #fff 70%, transparent); padding: 10px 0 20px; z-index: 5; }
         .pdf-page-number { display: inline-block; background: #f0f0f0; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; }
         
+        /* PDF page image container - renders page like traditional PDF viewer */
+        .pdf-page-image-container { text-align: center; margin: 20px 0; }
+        .pdf-page-image { max-width: 100%; height: auto; box-shadow: 0 2px 12px rgba(0,0,0,0.15); border-radius: 2px; background: #fff; }
+        
+        /* PDF copy text button */
+        .pdf-copy-text-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #ddd; color: #495057; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: -apple-system, sans-serif; font-size: 0.85em; margin-top: 15px; transition: all 0.2s; }
+        .pdf-copy-text-btn:hover { background: #495057; color: #fff; }
+        .pdf-copy-text-btn.copied { background: #27ae60; color: #fff; border-color: #27ae60; }
+        
+        /* PDF text preview (hidden, for copy) */
+        .pdf-text-content { display: none; }
+        
         /* PDF floating page indicator */
         #pdf-page-indicator { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); color: #fff; padding: 10px 18px; border-radius: 25px; font-family: -apple-system, sans-serif; font-size: 0.9em; z-index: 100; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
         #pdf-page-indicator.visible { opacity: 1; }
@@ -374,7 +386,20 @@
             </div>
             <div id="copy-status" aria-live="polite"></div>
             <div class="book-content" id="book-content">
+                {% if is_pdf %}
+                <div class="pdf-page" data-page-index="{{ chapter_index }}">
+                    {{ current_chapter.content | safe }}
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="pdf-copy-text-btn" onclick="copyPageText(this, {{ chapter_index }})" title="Copy all text from this page">
+                            📋 Copy Page Text
+                        </button>
+                    </div>
+                    <!-- Hidden text content for copying -->
+                    <div class="pdf-text-content" id="pdf-text-{{ chapter_index }}">{{ current_chapter.text }}</div>
+                </div>
+                {% else %}
                 {{ current_chapter.content | safe }}
+                {% endif %}
             </div>
 
             {% if not is_pdf %}
@@ -1286,8 +1311,81 @@
             }
         }
         
+        // Copy text from a specific PDF page
+        async function copyPageText(button, pageIndex) {
+            const textElement = document.getElementById(`pdf-text-${pageIndex}`);
+            if (!textElement) {
+                showCopyToast('Text not available', 'error');
+                return;
+            }
+            
+            const textToCopy = textElement.textContent.trim();
+            if (!textToCopy) {
+                showCopyToast('No text on this page', 'error');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                // Show success state on button
+                button.classList.add('copied');
+                const originalText = button.innerHTML;
+                button.innerHTML = '✓ Copied!';
+                showCopyToast('Page text copied!', 'success');
+                
+                // Reset button after delay
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                showCopyToast('Failed to copy', 'error');
+            }
+        }
+        
+        // Show toast notification for copy actions
+        function showCopyToast(message, type) {
+            let toast = document.getElementById('copy-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'copy-toast';
+                document.body.appendChild(toast);
+            }
+            
+            toast.textContent = message;
+            toast.className = `visible ${type}`;
+            
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 2000);
+        }
+        
         // Copy all loaded content
         async function copyAllLoaded() {
+            if (isPDF) {
+                // For PDFs, copy all the text content from loaded pages
+                const textElements = document.querySelectorAll('.pdf-text-content');
+                let allText = [];
+                textElements.forEach(el => {
+                    const text = el.textContent.trim();
+                    if (text) allText.push(text);
+                });
+                
+                const textToCopy = allText.join('\n\n--- Page Break ---\n\n');
+                if (!textToCopy) {
+                    showCopyToast('Nothing to copy', 'error');
+                    return;
+                }
+                
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+                    showCopyToast(`Copied ${textElements.length} page(s)!`, 'success');
+                } catch (err) {
+                    showCopyToast('Failed to copy', 'error');
+                }
+                return;
+            }
+            
             const contentEl = document.getElementById('book-content');
             if (!contentEl) return;
             
@@ -1480,11 +1578,21 @@
                             const pageWrapper = document.createElement('div');
                             pageWrapper.className = 'pdf-page';
                             pageWrapper.dataset.pageIndex = page.index;
+                            
+                            // Escape text for safe insertion into HTML
+                            const escapedText = page.text ? page.text.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+                            
                             pageWrapper.innerHTML = `
                                 <div class="pdf-page-header">
                                     <span class="pdf-page-number">${page.title}</span>
                                 </div>
                                 ${page.content}
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <button class="pdf-copy-text-btn" onclick="copyPageText(this, ${page.index})" title="Copy all text from this page">
+                                        📋 Copy Page Text
+                                    </button>
+                                </div>
+                                <div class="pdf-text-content" id="pdf-text-${page.index}">${escapedText}</div>
                             `;
                             contentDiv.appendChild(pageWrapper);
                         });

@@ -10,6 +10,11 @@ from reader3 import (
     clean_html_content,
     extract_plain_text,
     parse_toc_recursive,
+    PDFAnnotation,
+    PDFTextBlock,
+    PDFPageData,
+    get_pdf_page_stats,
+    search_pdf_text_positions,
 )
 from bs4 import BeautifulSoup
 
@@ -224,3 +229,465 @@ class TestParseTocRecursive:
         """Test parsing an empty TOC."""
         result = parse_toc_recursive([])
         assert result == []
+
+
+# ============================================================================
+# PDF Feature Tests
+# ============================================================================
+
+
+class TestPDFAnnotation:
+    """Tests for PDFAnnotation dataclass."""
+
+    def test_create_annotation_minimal(self):
+        """Test creating an annotation with minimal fields."""
+        annot = PDFAnnotation(
+            page=0,
+            type="highlight",
+            content="Test text",
+            rect=[10.0, 20.0, 100.0, 30.0]
+        )
+        assert annot.page == 0
+        assert annot.type == "highlight"
+        assert annot.content == "Test text"
+        assert len(annot.rect) == 4
+        assert annot.color is None
+        assert annot.author is None
+
+    def test_create_annotation_full(self):
+        """Test creating an annotation with all fields."""
+        annot = PDFAnnotation(
+            page=5,
+            type="note",
+            content="Important note",
+            rect=[50.0, 100.0, 150.0, 120.0],
+            color="#ffff00",
+            author="Test Author",
+            created="2024-01-15"
+        )
+        assert annot.page == 5
+        assert annot.type == "note"
+        assert annot.color == "#ffff00"
+        assert annot.author == "Test Author"
+        assert annot.created == "2024-01-15"
+
+    def test_annotation_types(self):
+        """Test various annotation types."""
+        types = ["highlight", "underline", "strikeout", "note", "freetext"]
+        for annot_type in types:
+            annot = PDFAnnotation(
+                page=0,
+                type=annot_type,
+                content="",
+                rect=[0, 0, 0, 0]
+            )
+            assert annot.type == annot_type
+
+
+class TestPDFTextBlock:
+    """Tests for PDFTextBlock dataclass."""
+
+    def test_create_text_block(self):
+        """Test creating a positioned text block."""
+        block = PDFTextBlock(
+            text="Hello",
+            x0=10.5,
+            y0=20.5,
+            x1=50.5,
+            y1=35.5,
+            block_no=0,
+            line_no=0,
+            word_no=0
+        )
+        assert block.text == "Hello"
+        assert block.x0 == 10.5
+        assert block.y0 == 20.5
+        assert block.x1 == 50.5
+        assert block.y1 == 35.5
+        assert block.block_no == 0
+
+    def test_text_block_positions(self):
+        """Test that text block positions are correctly stored."""
+        blocks = [
+            PDFTextBlock("word1", 0, 0, 50, 20, 0, 0, 0),
+            PDFTextBlock("word2", 55, 0, 100, 20, 0, 0, 1),
+            PDFTextBlock("word3", 0, 25, 50, 45, 0, 1, 0),
+        ]
+        assert blocks[0].word_no == 0
+        assert blocks[1].word_no == 1
+        assert blocks[2].line_no == 1
+
+
+class TestPDFPageData:
+    """Tests for PDFPageData dataclass."""
+
+    def test_create_page_data_minimal(self):
+        """Test creating page data with minimal fields."""
+        page_data = PDFPageData(
+            page_num=0,
+            width=612.0,
+            height=792.0,
+            rotation=0
+        )
+        assert page_data.page_num == 0
+        assert page_data.width == 612.0
+        assert page_data.height == 792.0
+        assert page_data.rotation == 0
+        assert page_data.text_blocks == []
+        assert page_data.annotations == []
+        assert page_data.has_images is False
+        assert page_data.word_count == 0
+
+    def test_create_page_data_full(self):
+        """Test creating page data with all fields."""
+        text_blocks = [
+            PDFTextBlock("Hello", 0, 0, 50, 20, 0, 0, 0),
+            PDFTextBlock("World", 55, 0, 100, 20, 0, 0, 1),
+        ]
+        annotations = [
+            PDFAnnotation(0, "highlight", "Hello World", [0, 0, 100, 20])
+        ]
+        page_data = PDFPageData(
+            page_num=0,
+            width=612.0,
+            height=792.0,
+            rotation=90,
+            text_blocks=text_blocks,
+            annotations=annotations,
+            has_images=True,
+            word_count=2
+        )
+        assert page_data.rotation == 90
+        assert len(page_data.text_blocks) == 2
+        assert len(page_data.annotations) == 1
+        assert page_data.has_images is True
+        assert page_data.word_count == 2
+
+
+class TestBookPDFFields:
+    """Tests for PDF-specific fields in Book dataclass."""
+
+    def test_book_pdf_defaults(self):
+        """Test that PDF-specific defaults are correct."""
+        metadata = BookMetadata(title="Test", language="en")
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.epub",
+            processed_at="2024-01-01"
+        )
+        assert book.is_pdf is False
+        assert book.pdf_page_data == {}
+        assert book.pdf_total_pages == 0
+        assert book.pdf_has_toc is False
+        assert book.pdf_thumbnails_generated is False
+
+    def test_book_pdf_with_data(self):
+        """Test creating a PDF book with page data."""
+        metadata = BookMetadata(title="PDF Test", language="en")
+        page_data = {
+            0: PDFPageData(0, 612.0, 792.0, 0, word_count=100),
+            1: PDFPageData(1, 612.0, 792.0, 0, word_count=150),
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=2,
+            pdf_has_toc=True,
+            pdf_thumbnails_generated=True
+        )
+        assert book.is_pdf is True
+        assert len(book.pdf_page_data) == 2
+        assert book.pdf_total_pages == 2
+        assert book.pdf_has_toc is True
+        assert book.pdf_thumbnails_generated is True
+
+
+class TestGetPDFPageStats:
+    """Tests for get_pdf_page_stats function."""
+
+    def test_stats_empty_pdf(self):
+        """Test stats for empty PDF book."""
+        metadata = BookMetadata(title="Empty PDF", language="en")
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="empty.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data={},
+            pdf_total_pages=0
+        )
+        stats = get_pdf_page_stats(book)
+        assert stats["total_pages"] == 0
+        assert stats["total_words"] == 0
+        assert stats["estimated_reading_time_minutes"] == 0.0
+
+    def test_stats_with_pages(self):
+        """Test stats calculation with page data."""
+        metadata = BookMetadata(title="Test PDF", language="en")
+        page_data = {
+            0: PDFPageData(
+                0, 612.0, 792.0, 0,
+                word_count=225,  # 1 minute of reading
+                has_images=True,
+                annotations=[
+                    PDFAnnotation(0, "highlight", "text", [0, 0, 10, 10])
+                ]
+            ),
+            1: PDFPageData(
+                1, 612.0, 792.0, 0,
+                word_count=225,  # 1 minute of reading
+                has_images=False,
+                annotations=[]
+            ),
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=2,
+            pdf_has_toc=True,
+            pdf_thumbnails_generated=True
+        )
+        stats = get_pdf_page_stats(book)
+        assert stats["total_pages"] == 2
+        assert stats["total_words"] == 450
+        assert stats["pages_with_images"] == 1
+        assert stats["pages_with_annotations"] == 1
+        assert stats["total_annotations"] == 1
+        assert stats["has_native_toc"] is True
+        assert stats["has_thumbnails"] is True
+        assert stats["estimated_reading_time_minutes"] == 2.0
+
+    def test_stats_non_pdf_returns_empty(self):
+        """Test that non-PDF book returns empty stats."""
+        metadata = BookMetadata(title="EPUB Book", language="en")
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.epub",
+            processed_at="2024-01-01",
+            is_pdf=False
+        )
+        stats = get_pdf_page_stats(book)
+        assert stats == {}
+
+
+class TestSearchPDFTextPositions:
+    """Tests for search_pdf_text_positions function."""
+
+    def test_search_non_pdf_returns_empty(self):
+        """Test searching non-PDF book returns empty list."""
+        metadata = BookMetadata(title="EPUB", language="en")
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.epub",
+            processed_at="2024-01-01",
+            is_pdf=False
+        )
+        results = search_pdf_text_positions(book, "test")
+        assert results == []
+
+    def test_search_empty_pdf(self):
+        """Test searching empty PDF returns empty list."""
+        metadata = BookMetadata(title="Empty PDF", language="en")
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="empty.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data={},
+            pdf_total_pages=0
+        )
+        results = search_pdf_text_positions(book, "test")
+        assert results == []
+
+    def test_search_finds_exact_match(self):
+        """Test search finds exact word matches."""
+        metadata = BookMetadata(title="Test PDF", language="en")
+        page_data = {
+            0: PDFPageData(
+                0, 612.0, 792.0, 0,
+                text_blocks=[
+                    PDFTextBlock("Hello", 10, 20, 50, 35, 0, 0, 0),
+                    PDFTextBlock("World", 55, 20, 100, 35, 0, 0, 1),
+                    PDFTextBlock("Test", 10, 40, 50, 55, 0, 1, 0),
+                ]
+            )
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=1
+        )
+        results = search_pdf_text_positions(book, "Hello")
+        assert len(results) == 1
+        assert results[0]["page"] == 0
+        assert results[0]["text"] == "Hello"
+        assert results[0]["match_type"] == "exact"
+
+    def test_search_case_insensitive(self):
+        """Test search is case-insensitive."""
+        metadata = BookMetadata(title="Test PDF", language="en")
+        page_data = {
+            0: PDFPageData(
+                0, 612.0, 792.0, 0,
+                text_blocks=[
+                    PDFTextBlock("HELLO", 10, 20, 50, 35, 0, 0, 0),
+                ]
+            )
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=1
+        )
+        results = search_pdf_text_positions(book, "hello")
+        assert len(results) == 1
+        assert results[0]["match_type"] == "exact"
+
+    def test_search_specific_page(self):
+        """Test searching a specific page only."""
+        metadata = BookMetadata(title="Test PDF", language="en")
+        page_data = {
+            0: PDFPageData(
+                0, 612.0, 792.0, 0,
+                text_blocks=[
+                    PDFTextBlock("test", 10, 20, 50, 35, 0, 0, 0),
+                ]
+            ),
+            1: PDFPageData(
+                1, 612.0, 792.0, 0,
+                text_blocks=[
+                    PDFTextBlock("test", 10, 20, 50, 35, 0, 0, 0),
+                ]
+            )
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=2
+        )
+        # Search only page 0
+        results = search_pdf_text_positions(book, "test", page_num=0)
+        assert len(results) == 1
+        assert results[0]["page"] == 0
+
+    def test_search_returns_rect_coordinates(self):
+        """Test search results include bounding box coordinates."""
+        metadata = BookMetadata(title="Test PDF", language="en")
+        page_data = {
+            0: PDFPageData(
+                0, 612.0, 792.0, 0,
+                text_blocks=[
+                    PDFTextBlock("keyword", 100, 200, 180, 220, 0, 0, 0),
+                ]
+            )
+        }
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=[],
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_page_data=page_data,
+            pdf_total_pages=1
+        )
+        results = search_pdf_text_positions(book, "keyword")
+        assert len(results) == 1
+        rect = results[0]["rect"]
+        assert rect == [100, 200, 180, 220]
+
+
+class TestPDFTOCExtraction:
+    """Tests related to PDF TOC/outline functionality."""
+
+    def test_book_with_native_toc(self):
+        """Test book correctly stores native TOC flag."""
+        metadata = BookMetadata(title="PDF with TOC", language="en")
+        toc = [
+            TOCEntry("Chapter 1", "page_1", "page_1", ""),
+            TOCEntry("Chapter 2", "page_10", "page_10", "",
+                     children=[
+                         TOCEntry("Section 2.1", "page_12", "page_12", "")
+                     ])
+        ]
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=toc,
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_has_toc=True
+        )
+        assert book.pdf_has_toc is True
+        assert len(book.toc) == 2
+        assert book.toc[1].children[0].title == "Section 2.1"
+
+    def test_book_without_native_toc(self):
+        """Test book with page-based TOC."""
+        metadata = BookMetadata(title="PDF without TOC", language="en")
+        # Page-based TOC (fallback)
+        toc = [
+            TOCEntry(f"Page {i+1}", f"page_{i+1}", f"page_{i+1}", "")
+            for i in range(5)
+        ]
+        book = Book(
+            metadata=metadata,
+            spine=[],
+            toc=toc,
+            images={},
+            source_file="test.pdf",
+            processed_at="2024-01-01",
+            is_pdf=True,
+            pdf_has_toc=False
+        )
+        assert book.pdf_has_toc is False
+        assert len(book.toc) == 5
+        assert book.toc[0].title == "Page 1"

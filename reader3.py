@@ -54,6 +54,44 @@ class BookMetadata:
 
 
 @dataclass
+class PDFAnnotation:
+    """Represents an annotation from a PDF."""
+    page: int
+    type: str           # highlight, underline, strikeout, note, etc.
+    content: str        # Annotation content/text
+    rect: List[float]   # [x0, y0, x1, y1] position
+    color: Optional[str] = None
+    author: Optional[str] = None
+    created: Optional[str] = None
+
+
+@dataclass
+class PDFTextBlock:
+    """Represents a positioned text block in a PDF page for accurate highlighting."""
+    text: str
+    x0: float
+    y0: float
+    x1: float
+    y1: float
+    block_no: int
+    line_no: int
+    word_no: int
+
+
+@dataclass
+class PDFPageData:
+    """Extended data for a PDF page."""
+    page_num: int
+    width: float
+    height: float
+    rotation: int
+    text_blocks: List[PDFTextBlock] = field(default_factory=list)
+    annotations: List[PDFAnnotation] = field(default_factory=list)
+    has_images: bool = False
+    word_count: int = 0
+
+
+@dataclass
 class Book:
     """The Master Object to be pickled."""
     metadata: BookMetadata
@@ -66,6 +104,12 @@ class Book:
     processed_at: str
     version: str = "3.0"
     is_pdf: bool = False  # Flag to indicate if this is a PDF book
+    
+    # PDF-specific data
+    pdf_page_data: Dict[int, PDFPageData] = field(default_factory=dict)
+    pdf_total_pages: int = 0
+    pdf_has_toc: bool = False  # True if PDF has native outline/bookmarks
+    pdf_thumbnails_generated: bool = False
 
 
 # --- Utilities ---
@@ -173,73 +217,309 @@ def extract_metadata_robust(book_obj) -> BookMetadata:
 
 # --- Main Conversion Logic ---
 
-def process_pdf(pdf_path: str, output_dir: str) -> Book:
+def extract_pdf_outline(doc) -> List[TOCEntry]:
+    """
+    Extract the PDF's native outline/bookmarks as a hierarchical TOC.
+    Returns empty list if PDF has no outline.
+    """
+    toc = doc.get_toc()  # Returns list of [level, title, page, dest]
+    if not toc:
+        return []
+
+    result = []
+    stack = [(0, result)]  # (current_level, current_list)
+
+    for item in toc:
+        level, title, page = item[0], item[1], item[2]
+        page_idx = max(0, page - 1)  # Convert to 0-based index
+
+        entry = TOCEntry(
+            title=title or f"Section (Page {page})",
+            href=f"page_{page_idx + 1}",
+            file_href=f"page_{page_idx + 1}",
+            anchor="",
+            children=[]
+        )
+
+        # Find the right parent level
+        while stack and stack[-1][0] >= level:
+            stack.pop()
+
+        if stack:
+            stack[-1][1].append(entry)
+        else:
+            result.append(entry)
+
+        stack.append((level, entry.children))
+
+    return result
+
+
+def extract_pdf_annotations(page) -> List[PDFAnnotation]:
+    """Extract annotations from a PDF page."""
+    annotations = []
+
+    for annot in page.annots() or []:
+        annot_type = annot.type[1] if annot.type else "unknown"
+
+        # Get annotation info
+        info = annot.info
+        content = info.get("content", "") or ""
+        author = info.get("title", "")  # 'title' often contains author
+        created = info.get("creationDate", "")
+
+        # Get color if available
+        color = None
+        if annot.colors and annot.colors.get("stroke"):
+            rgb = annot.colors["stroke"]
+            color = "#{:02x}{:02x}{:02x}".format(
+                int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)
+            )
+
+        rect = list(annot.rect)
+
+        # For highlight/underline, try to get the highlighted text
+        text_content = content
+        if annot_type in ("Highlight", "Underline", "StrikeOut", "Squiggly"):
+            try:
+                # Get quads and extract text from them
+                quads = annot.vertices
+                if quads:
+                    quad_rect = page.rect
+                    text_content = page.get_text("text", clip=annot.rect).strip()
+            except Exception:
+                pass
+
+        annotations.append(PDFAnnotation(
+            page=page.number,
+            type=annot_type.lower(),
+            content=text_content or content,
+            rect=rect,
+            color=color,
+            author=author,
+            created=created
+        ))
+
+    return annotations
+
+
+def extract_pdf_text_blocks(page, clip_rect=None) -> List[PDFTextBlock]:
+    """
+    Extract positioned text blocks from a PDF page for accurate search highlighting.
+    """
+    blocks = []
+
+    # Get word-level data with positions
+    words = page.get_text("words", clip=clip_rect)  # (x0, y0, x1, y1, word, ...)
+
+    for idx, word_data in enumerate(words):
+        x0, y0, x1, y1, word, block_no, line_no, word_no = word_data[:8]
+
+        blocks.append(PDFTextBlock(
+            text=word,
+            x0=x0,
+            y0=y0,
+            x1=x1,
+            y1=y1,
+            block_no=block_no,
+            line_no=line_no,
+            word_no=word_no
+        ))
+
+    return blocks
+
+
+def extract_pdf_images(page, page_num: int, images_dir: str) -> Dict[str, str]:
+    """
+    Extract images from a PDF page and save them.
+    Returns a map of image references to file paths.
+    """
+    import fitz
+    image_map = {}
+    image_list = page.get_images(full=True)
+
+    for img_idx, img in enumerate(image_list):
+        xref = img[0]
+        try:
+            base_image = page.parent.extract_image(xref)
+            image_bytes = base_image["image"]
+            image_ext = base_image["ext"]
+
+            # Save image
+            img_filename = f"page_{page_num + 1}_img_{img_idx + 1}.{image_ext}"
+            img_path = os.path.join(images_dir, img_filename)
+
+            with open(img_path, "wb") as f:
+                f.write(image_bytes)
+
+            image_map[f"xref_{xref}"] = f"images/{img_filename}"
+        except Exception as e:
+            print(f"Warning: Could not extract image {xref}: {e}")
+
+    return image_map
+
+
+def generate_pdf_thumbnail(page, page_num: int, thumbs_dir: str,
+                           size: int = 150) -> str:
+    """
+    Generate a thumbnail for a PDF page.
+    Returns the relative path to the thumbnail.
+    """
+    import fitz
+    # Calculate scale to fit within size x size
+    rect = page.rect
+    scale = min(size / rect.width, size / rect.height)
+    matrix = fitz.Matrix(scale, scale)
+
+    # Render page to pixmap
+    pix = page.get_pixmap(matrix=matrix, alpha=False)
+
+    # Save as PNG
+    thumb_filename = f"thumb_{page_num + 1}.png"
+    thumb_path = os.path.join(thumbs_dir, thumb_filename)
+    pix.save(thumb_path)
+
+    return f"thumbnails/{thumb_filename}"
+
+
+def generate_pdf_page_image(page, page_num: int, images_dir: str,
+                            dpi: int = 150) -> str:
+    """
+    Render a PDF page as a high-quality image for display.
+    Returns the relative path to the image.
+    """
+    import fitz
+    # Calculate zoom for desired DPI (72 is default PDF resolution)
+    zoom = dpi / 72
+    matrix = fitz.Matrix(zoom, zoom)
+
+    # Render page to pixmap
+    pix = page.get_pixmap(matrix=matrix, alpha=False)
+
+    # Save as PNG
+    img_filename = f"page_{page_num + 1}.png"
+    img_path = os.path.join(images_dir, img_filename)
+    pix.save(img_path)
+
+    return f"images/{img_filename}"
+
+
+def process_pdf(pdf_path: str, output_dir: str,
+                generate_thumbnails: bool = True) -> Book:
+    """
+    Process a PDF file into a structured Book object.
+    Renders each page as an image (like a traditional PDF reader)
+    while extracting text separately for search and copy functionality.
+    """
     import fitz  # PyMuPDF
 
     print(f"Loading {pdf_path}...")
     doc = fitz.open(pdf_path)
-    
+    total_pages = len(doc)
+
     # Extract Metadata
     metadata = BookMetadata(
         title=doc.metadata.get('title') or os.path.basename(pdf_path),
-        language="en",
-        authors=[doc.metadata.get('author')] if doc.metadata.get('author') else [],
+        language=doc.metadata.get('language') or "en",
+        authors=(
+            [doc.metadata.get('author')]
+            if doc.metadata.get('author') else []
+        ),
         publisher=doc.metadata.get('producer'),
-        date=doc.metadata.get('creationDate')
+        date=doc.metadata.get('creationDate'),
+        subjects=(
+            [doc.metadata.get('subject')]
+            if doc.metadata.get('subject') else []
+        )
     )
 
     # Prepare Output Directories
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     images_dir = os.path.join(output_dir, 'images')
+    thumbs_dir = os.path.join(output_dir, 'thumbnails')
     os.makedirs(images_dir, exist_ok=True)
+    if generate_thumbnails:
+        os.makedirs(thumbs_dir, exist_ok=True)
 
     spine_chapters = []
-    toc_structure = []
     image_map = {}
+    pdf_page_data = {}
 
-    print("Processing PDF pages...")
-    
-    # Heuristic for header/footer: 
-    # We'll ignore text in the top 5% and bottom 5% of the page height.
-    # This is a rough approximation but works for many standard books.
-    
+    # Extract native outline/TOC
+    print("Extracting PDF outline...")
+    toc_structure = extract_pdf_outline(doc)
+    has_native_toc = len(toc_structure) > 0
+
+    if not toc_structure:
+        print("No native TOC found, will create page-based navigation.")
+
+    print(f"Processing {total_pages} PDF pages...")
+
     for i, page in enumerate(doc):
         rect = page.rect
         height = rect.height
-        
-        # Define crop box (exclude top/bottom 7%)
-        # We can be a bit aggressive to ensure we miss headers/footers
-        clip_rect = fitz.Rect(0, height * 0.07, rect.width, height * 0.93)
-        
-        # Extract HTML/Text from the clipped area
-        # 'html' output from pymupdf is good but might be messy. 
-        # 'text' is safer for "just contents".
-        # Let's try to get HTML for formatting (bold/italic) but restricted to clip.
-        
-        # Note: get_text("html", clip=...) is supported in newer pymupdf
-        page_html = page.get_text("html", clip=clip_rect)
-        page_text = page.get_text("text", clip=clip_rect)
-        
-        # Clean up the HTML a bit (it wraps in div/p usually)
-        soup = BeautifulSoup(page_html, 'html.parser')
-        
-        # Create a simple chapter for this page
+        width = rect.width
+
+        # Extract plain text for search/copy (full page, no clipping)
+        page_text = page.get_text("text")
+
+        # Render page as image for display
+        page_image_path = generate_pdf_page_image(page, i, images_dir)
+        image_map[f"page_{i+1}"] = page_image_path
+
+        # Extract text blocks with positions (for advanced features)
+        text_blocks = extract_pdf_text_blocks(page)
+
+        # Extract annotations
+        annotations = extract_pdf_annotations(page)
+
+        # Generate thumbnail if requested
+        if generate_thumbnails:
+            generate_pdf_thumbnail(page, i, thumbs_dir)
+
+        # Store page-specific data
+        pdf_page_data[i] = PDFPageData(
+            page_num=i,
+            width=width,
+            height=height,
+            rotation=page.rotation,
+            text_blocks=text_blocks,
+            annotations=annotations,
+            has_images=True,  # We render the whole page as image
+            word_count=len(page_text.split())
+        )
+
+        # Create chapter content - use image tag instead of messy HTML
         chapter_id = f"page_{i+1}"
         chapter_title = f"Page {i+1}"
-        
-        # Add every page to the TOC for PDF navigation
-        toc_structure.append(TOCEntry(title=chapter_title, href=chapter_id, file_href=chapter_id, anchor=""))
+
+        # HTML content shows the rendered page image
+        # Text is stored separately for copy functionality
+        content_html = f'''<div class="pdf-page-image-container">
+<img src="{page_image_path}" alt="Page {i+1}" class="pdf-page-image" />
+</div>'''
+
+        # If no native TOC, add each page to the TOC
+        if not has_native_toc:
+            toc_structure.append(TOCEntry(
+                title=chapter_title,
+                href=chapter_id,
+                file_href=chapter_id,
+                anchor=""
+            ))
 
         chapter = ChapterContent(
             id=chapter_id,
             href=chapter_id,
             title=chapter_title,
-            content=str(soup), # stored as HTML
-            text=page_text,
+            content=content_html,
+            text=page_text,  # Full text for search/copy
             order=i
         )
         spine_chapters.append(chapter)
+
+    doc.close()
 
     final_book = Book(
         metadata=metadata,
@@ -248,10 +528,131 @@ def process_pdf(pdf_path: str, output_dir: str) -> Book:
         images=image_map,
         source_file=os.path.basename(pdf_path),
         processed_at=datetime.now().isoformat(),
-        is_pdf=True
+        is_pdf=True,
+        pdf_page_data=pdf_page_data,
+        pdf_total_pages=total_pages,
+        pdf_has_toc=has_native_toc,
+        pdf_thumbnails_generated=generate_thumbnails
     )
-    
+
     return final_book
+
+
+def export_pdf_pages(book: Book, output_path: str, start_page: int,
+                     end_page: int, original_pdf_path: str) -> bool:
+    """
+    Export a range of pages from a PDF to a new PDF file.
+    Requires the original PDF file path since we only store text in Book.
+    """
+    import fitz
+
+    if not book.is_pdf:
+        raise ValueError("This function only works with PDF books")
+
+    try:
+        doc = fitz.open(original_pdf_path)
+        new_doc = fitz.open()
+
+        # Validate page range
+        start_page = max(0, start_page)
+        end_page = min(end_page, len(doc) - 1)
+
+        # Copy pages
+        new_doc.insert_pdf(doc, from_page=start_page, to_page=end_page)
+
+        # Save
+        new_doc.save(output_path)
+        new_doc.close()
+        doc.close()
+
+        return True
+    except Exception as e:
+        print(f"Error exporting PDF pages: {e}")
+        return False
+
+
+def search_pdf_text_positions(book: Book, query: str,
+                              page_num: int = None) -> List[dict]:
+    """
+    Search for text in PDF and return positions for highlighting.
+    Returns list of matches with page number and bounding box coordinates.
+    """
+    if not book.is_pdf:
+        return []
+
+    results = []
+    query_lower = query.lower()
+    query_words = query_lower.split()
+
+    pages_to_search = (
+        [page_num] if page_num is not None
+        else range(book.pdf_total_pages)
+    )
+
+    for page_idx in pages_to_search:
+        if page_idx not in book.pdf_page_data:
+            continue
+
+        page_data = book.pdf_page_data[page_idx]
+        text_blocks = page_data.text_blocks
+
+        # Simple word-by-word matching
+        for i, block in enumerate(text_blocks):
+            if query_lower in block.text.lower():
+                results.append({
+                    "page": page_idx,
+                    "text": block.text,
+                    "rect": [block.x0, block.y0, block.x1, block.y1],
+                    "match_type": "exact"
+                })
+            elif any(w in block.text.lower() for w in query_words):
+                results.append({
+                    "page": page_idx,
+                    "text": block.text,
+                    "rect": [block.x0, block.y0, block.x1, block.y1],
+                    "match_type": "partial"
+                })
+
+    return results
+
+
+def get_pdf_page_stats(book: Book) -> dict:
+    """
+    Get statistics about the PDF pages.
+    """
+    if not book.is_pdf:
+        return {}
+
+    total_words = 0
+    total_images = 0
+    total_annotations = 0
+    pages_with_images = 0
+    pages_with_annotations = 0
+
+    for page_data in book.pdf_page_data.values():
+        total_words += page_data.word_count
+        if page_data.has_images:
+            pages_with_images += 1
+            total_images += 1  # Simplified count
+        if page_data.annotations:
+            pages_with_annotations += 1
+            total_annotations += len(page_data.annotations)
+
+    # Estimate reading time (225 words per minute)
+    reading_time_minutes = total_words / 225
+
+    return {
+        "total_pages": book.pdf_total_pages,
+        "total_words": total_words,
+        "total_images": total_images,
+        "total_annotations": total_annotations,
+        "pages_with_images": pages_with_images,
+        "pages_with_annotations": pages_with_annotations,
+        "has_native_toc": book.pdf_has_toc,
+        "has_thumbnails": book.pdf_thumbnails_generated,
+        "estimated_reading_time_minutes": round(reading_time_minutes, 1)
+    }
+
 
 def process_epub(epub_path: str, output_dir: str) -> Book:
 
