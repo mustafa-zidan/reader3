@@ -106,6 +106,38 @@ class TestReadingProgressAPI:
         data = get_response.json()
         assert data["chapter_index"] == 5
 
+    def test_progress_includes_percent(self, client):
+        """Test that progress response includes progress_percent."""
+        import uuid
+        book_id = f"test_book_percent_{uuid.uuid4().hex[:8]}"
+        
+        response = client.get(f"/api/progress/{book_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert "progress_percent" in data
+
+    def test_progress_percent_calculated_from_chapters(self, client):
+        """Test that progress_percent is calculated from chapter progress."""
+        import uuid
+        book_id = f"test_book_calc_{uuid.uuid4().hex[:8]}"
+        
+        # Save chapter progress for multiple chapters
+        client.post(
+            f"/api/chapter-progress/{book_id}/0",
+            json={"progress": 100.0}
+        )
+        client.post(
+            f"/api/chapter-progress/{book_id}/1",
+            json={"progress": 50.0}
+        )
+        
+        # Get overall progress
+        response = client.get(f"/api/progress/{book_id}")
+        data = response.json()
+        
+        # Should have some progress_percent > 0
+        assert data["progress_percent"] > 0
+
 
 class TestBookmarksAPI:
     """Tests for bookmarks API endpoints."""
@@ -679,3 +711,91 @@ class TestExportAPI:
 
         for emoji in expected_emojis:
             assert emoji in content, f"Expected emoji {emoji} not found"
+
+
+class TestChapterProgressAPI:
+    """Tests for chapter progress API endpoints."""
+
+    def test_get_chapter_progress_empty(self, client):
+        """Test getting chapter progress when none exists."""
+        response = client.get("/api/chapter-progress/nonexistent_book")
+        assert response.status_code == 200
+        data = response.json()
+        assert "progress" in data
+        assert data["progress"] == {}
+
+    def test_save_chapter_progress_json_body(self, client):
+        """Test saving chapter progress via JSON body."""
+        book_id = "test_book_chapter_progress"
+        
+        response = client.post(
+            f"/api/chapter-progress/{book_id}/0",
+            json={"progress": 50.0}
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "saved"
+        
+        # Verify it was saved
+        get_response = client.get(f"/api/chapter-progress/{book_id}")
+        assert get_response.status_code == 200
+        progress = get_response.json()["progress"]
+        assert progress.get("0") == 50.0 or progress.get(0) == 50.0
+
+    def test_save_chapter_progress_query_param(self, client):
+        """Test saving chapter progress via query parameter."""
+        book_id = "test_book_chapter_progress_query"
+        
+        response = client.post(
+            f"/api/chapter-progress/{book_id}/1?progress=75.0"
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "saved"
+
+    def test_save_multiple_chapters(self, client):
+        """Test saving progress for multiple chapters."""
+        import uuid
+        book_id = f"test_book_multi_{uuid.uuid4().hex[:8]}"
+        
+        for i in range(3):
+            client.post(
+                f"/api/chapter-progress/{book_id}/{i}",
+                json={"progress": (i + 1) * 25.0}
+            )
+        
+        response = client.get(f"/api/chapter-progress/{book_id}")
+        progress = response.json()["progress"]
+        
+        # Progress should have 3 entries
+        assert len(progress) == 3
+
+    def test_chapter_progress_only_increases(self, client):
+        """Test that chapter progress doesn't decrease."""
+        import uuid
+        book_id = f"test_book_noincrease_{uuid.uuid4().hex[:8]}"
+        
+        # Set initial progress
+        client.post(
+            f"/api/chapter-progress/{book_id}/0",
+            json={"progress": 80.0}
+        )
+        
+        # Try to set lower progress
+        client.post(
+            f"/api/chapter-progress/{book_id}/0",
+            json={"progress": 50.0}
+        )
+        
+        # Should still be 80
+        response = client.get(f"/api/chapter-progress/{book_id}")
+        progress = response.json()["progress"]
+        assert progress.get("0") == 80.0 or progress.get(0) == 80.0
+
+
+class TestReadingTimesAPI:
+    """Tests for reading times API endpoints."""
+
+    def test_get_reading_times_nonexistent_book(self, client):
+        """Test getting reading times for a book that doesn't exist."""
+        response = client.get("/api/reading-times/nonexistent_book_xyz")
+        # Should return 404 since book doesn't exist
+        assert response.status_code == 404

@@ -290,6 +290,22 @@ async def delete_book(book_id: str):
 async def get_reading_progress(book_id: str):
     """Get reading progress for a book."""
     progress = user_data_manager.get_progress(book_id)
+    chapter_progress = user_data_manager.get_chapter_progress(book_id)
+    
+    # Calculate overall progress percentage from chapter progress
+    overall_progress = 0.0
+    if chapter_progress:
+        # Get the book to know total chapters
+        book = load_book_cached(book_id)
+        if book and len(book.spine) > 0:
+            total_chapters = len(book.spine)
+            # Sum up all chapter progress and divide by total chapters
+            total_progress = sum(chapter_progress.values())
+            overall_progress = total_progress / total_chapters
+        elif chapter_progress:
+            # Fallback: average of recorded chapters
+            overall_progress = sum(chapter_progress.values()) / len(chapter_progress)
+    
     if progress:
         return {
             "book_id": progress.book_id,
@@ -298,8 +314,14 @@ async def get_reading_progress(book_id: str):
             "last_read": progress.last_read,
             "total_chapters": progress.total_chapters,
             "reading_time_seconds": progress.reading_time_seconds,
+            "progress_percent": overall_progress,
         }
-    return {"book_id": book_id, "chapter_index": 0, "scroll_position": 0.0}
+    return {
+        "book_id": book_id,
+        "chapter_index": 0,
+        "scroll_position": 0.0,
+        "progress_percent": overall_progress,
+    }
 
 
 @app.post("/api/progress/{book_id}")
@@ -625,6 +647,76 @@ async def export_all_data():
         media_type="application/json",
         headers={"Content-Disposition": "attachment; filename=reader3_backup.json"},
     )
+
+
+# ============================================================================
+# Chapter Progress API (per-chapter tracking)
+# ============================================================================
+
+
+@app.get("/api/chapter-progress/{book_id}")
+async def get_chapter_progress(book_id: str):
+    """Get reading progress for each chapter in a book."""
+    progress = user_data_manager.get_chapter_progress(book_id)
+    return {"book_id": book_id, "progress": progress}
+
+
+@app.post("/api/chapter-progress/{book_id}/{chapter_index}")
+async def save_chapter_progress(
+    book_id: str,
+    chapter_index: int,
+    request: Request,
+    progress: Optional[float] = None
+):
+    """Save reading progress for a specific chapter."""
+    # Support both query parameter (for sendBeacon) and JSON body
+    if progress is not None:
+        progress_percent = progress
+    else:
+        try:
+            data = await request.json()
+            progress_percent = data.get("progress", 0)
+        except Exception:
+            progress_percent = 0
+    
+    user_data_manager.save_chapter_progress(
+        book_id, chapter_index, progress_percent
+    )
+    return {"status": "saved"}
+
+
+# ============================================================================
+# Reading Time Estimates API
+# ============================================================================
+
+
+@app.get("/api/reading-times/{book_id}")
+async def get_reading_times(book_id: str):
+    """Get estimated reading times for all chapters in a book."""
+    book = load_book_cached(book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    # Average reading speed: 225 words per minute
+    words_per_minute = 225
+    times = {}
+
+    for idx, chapter in enumerate(book.spine):
+        # Get text content
+        text = getattr(chapter, "text", "") or ""
+        if not text:
+            # Fallback: strip HTML tags from content
+            import re
+
+            content = chapter.content or ""
+            text = re.sub(r"<[^>]+>", " ", content)
+
+        # Count words
+        word_count = len(text.split())
+        minutes = max(1, round(word_count / words_per_minute))
+        times[idx] = minutes
+
+    return {"book_id": book_id, "times": times}
 
 
 if __name__ == "__main__":

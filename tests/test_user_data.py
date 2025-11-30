@@ -506,6 +506,86 @@ class TestReadingProgress:
         assert result.reading_time_seconds == 150
 
 
+class TestChapterProgress:
+    """Tests for per-chapter progress tracking functionality."""
+
+    def test_get_chapter_progress_empty(self, manager):
+        """Test getting chapter progress when none exists."""
+        progress = manager.get_chapter_progress("nonexistent_book")
+        assert progress == {}
+
+    def test_save_chapter_progress(self, manager):
+        """Test saving chapter progress."""
+        manager.save_chapter_progress("book1", 0, 50.0)
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress == {0: 50.0}
+
+    def test_save_chapter_progress_multiple_chapters(self, manager):
+        """Test saving progress for multiple chapters."""
+        manager.save_chapter_progress("book1", 0, 100.0)
+        manager.save_chapter_progress("book1", 1, 50.0)
+        manager.save_chapter_progress("book1", 2, 25.0)
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress == {0: 100.0, 1: 50.0, 2: 25.0}
+
+    def test_chapter_progress_only_increases(self, manager):
+        """Test that chapter progress only increases (doesn't go backwards)."""
+        manager.save_chapter_progress("book1", 0, 75.0)
+        manager.save_chapter_progress("book1", 0, 50.0)  # Lower value
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress[0] == 75.0  # Should stay at 75%
+
+    def test_chapter_progress_updates_higher(self, manager):
+        """Test that chapter progress updates when higher value is provided."""
+        manager.save_chapter_progress("book1", 0, 50.0)
+        manager.save_chapter_progress("book1", 0, 90.0)  # Higher value
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress[0] == 90.0
+
+    def test_chapter_progress_caps_at_100(self, manager):
+        """Test that chapter progress is capped at 100%."""
+        manager.save_chapter_progress("book1", 0, 150.0)  # Over 100%
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress[0] == 100.0
+
+    def test_chapter_progress_persistence(self, manager, temp_data_dir):
+        """Test that chapter progress persists after reloading."""
+        manager.save_chapter_progress("book1", 0, 80.0)
+        manager.save_chapter_progress("book1", 3, 100.0)
+        
+        # Create new manager and verify persistence
+        new_manager = UserDataManager(temp_data_dir)
+        progress = new_manager.get_chapter_progress("book1")
+        assert progress == {0: 80.0, 3: 100.0}
+
+    def test_chapter_progress_multiple_books(self, manager):
+        """Test that chapter progress is separate for each book."""
+        manager.save_chapter_progress("book1", 0, 50.0)
+        manager.save_chapter_progress("book2", 0, 75.0)
+        
+        progress1 = manager.get_chapter_progress("book1")
+        progress2 = manager.get_chapter_progress("book2")
+        
+        assert progress1 == {0: 50.0}
+        assert progress2 == {0: 75.0}
+
+    def test_chapter_progress_cleanup(self, manager):
+        """Test that chapter progress is cleaned up when book is deleted."""
+        manager.save_chapter_progress("book1", 0, 100.0)
+        manager.save_chapter_progress("book1", 1, 50.0)
+        
+        # Clean up book data
+        manager.cleanup_book_data("book1")
+        
+        progress = manager.get_chapter_progress("book1")
+        assert progress == {}
+
+
 class TestSearchHistory:
     """Tests for search history functionality."""
 

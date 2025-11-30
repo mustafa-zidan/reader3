@@ -162,6 +162,12 @@
         .no-results { text-align: center; padding: 30px; color: #999; }
         .reading-progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden; }
         .reading-progress-fill { height: 100%; background: linear-gradient(90deg, #3498db, #9b59b6); transition: width 0.3s; }
+        
+        /* Empty state */
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state-illustration { margin-bottom: 20px; }
+        .empty-state-title { font-size: 1.4em; color: #444; margin-bottom: 8px; font-weight: 500; }
+        .empty-state-subtitle { color: #888; font-size: 1em; }
     </style>
 </head>
 
@@ -190,7 +196,26 @@
         </div>
 
         {% if not books %}
-        <p>No books found. Upload an EPUB file to get started.</p>
+        <div class="empty-state">
+            <div class="empty-state-illustration">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="30" width="50" height="70" rx="3" fill="#e0e0e0" stroke="#bbb" stroke-width="2"/>
+                    <rect x="25" y="35" width="40" height="5" rx="1" fill="#ccc"/>
+                    <rect x="25" y="45" width="35" height="3" rx="1" fill="#ddd"/>
+                    <rect x="25" y="52" width="38" height="3" rx="1" fill="#ddd"/>
+                    <rect x="25" y="59" width="30" height="3" rx="1" fill="#ddd"/>
+                    <rect x="50" y="25" width="50" height="70" rx="3" fill="#f0f0f0" stroke="#ccc" stroke-width="2"/>
+                    <rect x="55" y="30" width="40" height="5" rx="1" fill="#ddd"/>
+                    <rect x="55" y="40" width="35" height="3" rx="1" fill="#e5e5e5"/>
+                    <rect x="55" y="47" width="38" height="3" rx="1" fill="#e5e5e5"/>
+                    <rect x="55" y="54" width="30" height="3" rx="1" fill="#e5e5e5"/>
+                    <circle cx="95" cy="85" r="18" fill="#3498db" opacity="0.2"/>
+                    <path d="M95 77V93M87 85H103" stroke="#3498db" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <p class="empty-state-title">Your library is empty</p>
+            <p class="empty-state-subtitle">Upload an EPUB or PDF file to start reading</p>
+        </div>
         {% endif %}
 
         <div class="book-grid">
@@ -259,7 +284,15 @@
             const container = document.getElementById('search-results-container');
             
             if (results.length === 0) {
-                container.innerHTML = '<div class="search-results"><div class="no-results">No results found</div></div>';
+                container.innerHTML = `
+                    <div class="search-results">
+                        <div class="empty-state" style="padding: 40px 20px;">
+                            <div style="font-size: 3em; margin-bottom: 10px; opacity: 0.5;">🔍</div>
+                            <div style="color: #666; font-size: 1.1em; margin-bottom: 5px;">No results found</div>
+                            <div style="color: #999; font-size: 0.9em;">Try different keywords or check spelling</div>
+                        </div>
+                    </div>
+                `;
                 return;
             }
             

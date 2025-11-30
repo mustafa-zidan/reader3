@@ -63,6 +63,7 @@ class UserData:
     highlights: Dict[str, List[Highlight]] = field(default_factory=dict)  # book_id -> highlights
     bookmarks: Dict[str, List[Bookmark]] = field(default_factory=dict)  # book_id -> bookmarks
     progress: Dict[str, ReadingProgress] = field(default_factory=dict)  # book_id -> progress
+    chapter_progress: Dict[str, Dict[int, float]] = field(default_factory=dict)  # book_id -> {chapter_index -> percent}
     search_history: List[SearchQuery] = field(default_factory=list)
     version: str = "1.0"
 
@@ -116,6 +117,10 @@ class UserDataManager:
                     book_id: ReadingProgress(**p)
                     for book_id, p in raw.get('progress', {}).items()
                 },
+                chapter_progress={
+                    book_id: {int(k): v for k, v in chapters.items()}
+                    for book_id, chapters in raw.get('chapter_progress', {}).items()
+                },
                 search_history=[
                     SearchQuery(**q) for q in raw.get('search_history', [])
                 ],
@@ -148,6 +153,7 @@ class UserDataManager:
                 book_id: asdict(p)
                 for book_id, p in self._data.progress.items()
             },
+            'chapter_progress': self._data.chapter_progress,
             'search_history': [asdict(q) for q in self._data.search_history],
             'version': self._data.version
         }
@@ -285,6 +291,24 @@ class UserDataManager:
             data.progress[book_id].reading_time_seconds += seconds
             self.save()
     
+    # Chapter Progress (per-chapter tracking)
+    def get_chapter_progress(self, book_id: str) -> Dict[int, float]:
+        """Get reading progress for each chapter in a book."""
+        data = self.load()
+        return data.chapter_progress.get(book_id, {})
+    
+    def save_chapter_progress(self, book_id: str, chapter_index: int,
+                              progress_percent: float):
+        """Save reading progress for a specific chapter."""
+        data = self.load()
+        if book_id not in data.chapter_progress:
+            data.chapter_progress[book_id] = {}
+        # Only update if new progress is higher (don't lose progress)
+        current = data.chapter_progress[book_id].get(chapter_index, 0)
+        if progress_percent > current:
+            data.chapter_progress[book_id][chapter_index] = min(100, progress_percent)
+            self.save()
+    
     # Search History
     def add_search(self, query: SearchQuery):
         """Add a search query to history."""
@@ -401,6 +425,9 @@ class UserDataManager:
             changed = True
         if book_id in data.progress:
             del data.progress[book_id]
+            changed = True
+        if book_id in data.chapter_progress:
+            del data.chapter_progress[book_id]
             changed = True
         
         if changed:
