@@ -1270,7 +1270,7 @@
             resultsContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Searching...</p>';
             
             try {
-                const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&book_id=${encodeURIComponent(bookId)}`);
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&book_id=${encodeURIComponent(bookId)}`);
                 if (response.ok) {
                     const data = await response.json();
                     
@@ -1302,44 +1302,204 @@
                 return;
             }
             
+            // Group results by chapter
+            const grouped = {};
+            results.forEach(r => {
+                if (!grouped[r.chapter_index]) {
+                    grouped[r.chapter_index] = {
+                        chapter: r,
+                        matches: []
+                    };
+                }
+                grouped[r.chapter_index].matches.push(r);
+            });
+            
             const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
             
-            container.innerHTML = results.map(r => `
-                <div class="search-result" onclick="goToSearchResult('${r.chapter_href}', '${encodeURIComponent(query)}')">
-                    <div class="search-result-chapter">${r.chapter_title || 'Chapter ' + (r.chapter_index + 1)}</div>
-                    <div class="search-result-context">${r.context.replace(regex, '<mark>$1</mark>')}</div>
+            container.innerHTML = `
+                <div style="padding: 10px 20px; background: #f5f5f5; font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                    ${results.length} result${results.length > 1 ? 's' : ''} found
+                </div>
+            ` + Object.values(grouped).map(g => `
+                <div style="margin-bottom: 10px;">
+                    <div style="font-weight: 600; color: #333; padding: 10px 15px; background: #f9f9f9; border-left: 3px solid #3498db;">
+                        ${g.chapter.chapter_title || 'Chapter ' + (g.chapter.chapter_index + 1)} (${g.matches.length} match${g.matches.length > 1 ? 'es' : ''})
+                    </div>
+                    ${g.matches.map((r, idx) => `
+                        <div class="search-result" onclick="goToSearchResult(${r.chapter_index}, '${encodeURIComponent(query)}', ${idx})">
+                            <div class="search-result-context">${r.context.replace(regex, '<mark>$1</mark>')}</div>
+                        </div>
+                    `).join('')}
                 </div>
             `).join('');
         }
         
-        function goToSearchResult(href, query) {
+        // Store current highlights for cleanup
+        let currentHighlights = [];
+        
+        function goToSearchResult(chapterIndex, query, matchIndex) {
             closeSearch();
-            // Find and scroll to the text
+            const decodedQuery = decodeURIComponent(query);
             const content = document.getElementById('book-content');
             const mainEl = document.getElementById('main');
-            if (content && mainEl) {
-                const decodedQuery = decodeURIComponent(query);
-                const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+            
+            if (!content || !mainEl) return;
+            
+            // Clear previous highlights
+            clearHighlights();
+            
+            // Find all instances of the search term in the content
+            const matches = findAllTextMatches(content, decodedQuery);
+            
+            if (matches.length === 0) return;
+            
+            // Highlight all instances with different colors
+            matches.forEach((match, index) => {
+                const span = document.createElement('span');
                 
-                while (walker.nextNode()) {
-                    const node = walker.currentNode;
-                    if (node.textContent.toLowerCase().includes(decodedQuery.toLowerCase())) {
-                        const range = document.createRange();
-                        range.selectNode(node);
-                        const rect = range.getBoundingClientRect();
-                        const mainRect = mainEl.getBoundingClientRect();
-                        mainEl.scrollTo({ top: mainEl.scrollTop + rect.top - mainRect.top - 100, behavior: 'smooth' });
-                        
-                        // Temporary highlight
-                        const span = document.createElement('span');
-                        span.style.background = '#ffeb3b';
-                        span.style.transition = 'background 2s';
-                        range.surroundContents(span);
-                        setTimeout(() => span.style.background = 'transparent', 2000);
-                        break;
+                // First match gets bright highlight, others get subtle highlight
+                if (index === matchIndex || matches.length === 1) {
+                    span.style.background = '#ffeb3b';
+                    span.style.color = '#000';
+                    span.style.fontWeight = 'bold';
+                    
+                    // Scroll the first occurrence into view
+                    if (index === matchIndex || matchIndex === 0) {
+                        setTimeout(() => {
+                            const rect = span.getBoundingClientRect();
+                            const mainRect = mainEl.getBoundingClientRect();
+                            mainEl.scrollTo({
+                                top: mainEl.scrollTop + rect.top - mainRect.top - 100,
+                                behavior: 'smooth'
+                            });
+                        }, 50);
                     }
+                } else {
+                    span.style.background = '#fff59d';
+                    span.style.color = '#000';
                 }
+                
+                span.style.transition = 'background 0.3s ease, color 0.3s ease';
+                span.style.padding = '2px 4px';
+                span.style.borderRadius = '3px';
+                span.className = 'search-highlight';
+                
+                // Wrap the matched text
+                const range = match.range;
+                try {
+                    range.surroundContents(span);
+                    currentHighlights.push(span);
+                } catch (e) {
+                    // If surroundContents fails (complex DOM), use alternative
+                    const contents = range.extractContents();
+                    span.appendChild(contents);
+                    range.insertNode(span);
+                    currentHighlights.push(span);
+                }
+            });
+            
+            // Remove highlights after 3 seconds
+            setTimeout(clearHighlights, 3000);
+        }
+        
+        function findAllTextMatches(element, searchTerm) {
+            const matches = [];
+            const regex = new RegExp(escapeRegex(searchTerm), 'gi');
+            const walker = document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            let node;
+            while (node = walker.nextNode()) {
+                let match;
+                while ((match = regex.exec(node.textContent)) !== null) {
+                    const range = document.createRange();
+                    range.setStart(node, match.index);
+                    range.setEnd(node, match.index + searchTerm.length);
+                    matches.push({ range, text: match[0] });
+                }
+                regex.lastIndex = 0;
             }
+            
+            return matches;
+        }
+        
+        function clearHighlights() {
+            currentHighlights.forEach(span => {
+                const parent = span.parentNode;
+                if (parent) {
+                    while (span.firstChild) {
+                        parent.insertBefore(span.firstChild, span);
+                    }
+                    parent.removeChild(span);
+                }
+            });
+            currentHighlights = [];
+        }
+        
+        // Highlight search term when loaded from library search
+        function performSearchHighlight(searchTerm) {
+            const content = document.getElementById('book-content');
+            const mainEl = document.getElementById('main');
+            
+            if (!content || !mainEl || !searchTerm) return;
+            
+            clearHighlights();
+            
+            // Find all instances of the search term
+            const matches = findAllTextMatches(content, searchTerm);
+            
+            if (matches.length === 0) return;
+            
+            // Highlight all instances
+            matches.forEach((match, index) => {
+                const span = document.createElement('span');
+                
+                if (index === 0) {
+                    // First match gets bright highlight and we scroll to it
+                    span.style.background = '#ffeb3b';
+                    span.style.color = '#000';
+                    span.style.fontWeight = 'bold';
+                    
+                    // Scroll first match into view
+                    setTimeout(() => {
+                        const rect = span.getBoundingClientRect();
+                        const mainRect = mainEl.getBoundingClientRect();
+                        mainEl.scrollTo({
+                            top: mainEl.scrollTop + rect.top - mainRect.top - 100,
+                            behavior: 'smooth'
+                        });
+                    }, 50);
+                } else {
+                    // Other matches get subtle highlight
+                    span.style.background = '#fff59d';
+                    span.style.color = '#000';
+                }
+                
+                span.style.transition = 'background 0.3s ease, color 0.3s ease';
+                span.style.padding = '2px 4px';
+                span.style.borderRadius = '3px';
+                span.className = 'search-highlight';
+                
+                // Wrap the matched text
+                const range = match.range;
+                try {
+                    range.surroundContents(span);
+                    currentHighlights.push(span);
+                } catch (e) {
+                    // If surroundContents fails, use alternative
+                    const contents = range.extractContents();
+                    span.appendChild(contents);
+                    range.insertNode(span);
+                    currentHighlights.push(span);
+                }
+            });
+            
+            // Remove highlights after 4 seconds
+            setTimeout(clearHighlights, 4000);
         }
         
         function searchFromHistory(query) {
@@ -2128,6 +2288,16 @@
             // Load chapter progress and reading times
             loadChapterProgress();
             calculateReadingTimes();
+            
+            // Check for search query parameter from library search
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            if (searchQuery) {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    performSearchHighlight(decodeURIComponent(searchQuery));
+                }, 500);
+            }
         });
         
         // ===== KEYBOARD NAVIGATION HELPERS =====

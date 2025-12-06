@@ -509,21 +509,21 @@ def get_all_book_ids():
 async def search_books(q: str, book_id: str = None):
     """
     Search for text across all books or within a specific book.
-    Returns matching passages with context.
+    Returns all matching passages with context and position data.
     """
     if not q or len(q) < 2:
         return {"results": [], "query": q, "total": 0}
 
     results = []
     query_lower = q.lower()
-    max_results = 100  # Total results limit
-    max_per_chapter = 3  # Limit per chapter to spread results
+    # Total results limit (allow more to show all instances)
+    max_total_results = 500
 
     # Determine which books to search
     book_ids = [book_id] if book_id else get_all_book_ids()
 
     for bid in book_ids:
-        if len(results) >= max_results:
+        if len(results) >= max_total_results:
             break
 
         book = load_book_cached(bid)
@@ -533,7 +533,7 @@ async def search_books(q: str, book_id: str = None):
         book_title = book.metadata.title
 
         for idx, chapter in enumerate(book.spine):
-            if len(results) >= max_results:
+            if len(results) >= max_total_results:
                 break
 
             # Search in plain text
@@ -547,28 +547,27 @@ async def search_books(q: str, book_id: str = None):
             if query_lower not in text_lower:
                 continue
 
-            # Find occurrences
-            chapter_results = 0
+            # Find ALL occurrences in this chapter
             start = 0
-            while chapter_results < max_per_chapter:
+            while True:
                 pos = text_lower.find(query_lower, start)
                 if pos == -1:
                     break
 
-                # Extract context (80 chars before and after)
-                context_start = max(0, pos - 80)
-                context_end = min(len(text), pos + len(q) + 80)
+                # Extract context (100 chars before and after)
+                context_start = max(0, pos - 100)
+                context_end = min(len(text), pos + len(q) + 100)
                 context = text[context_start:context_end]
 
                 # Clean up context - trim to word boundaries
                 if context_start > 0:
                     space_idx = context.find(" ")
-                    if space_idx > 0 and space_idx < 20:
+                    if space_idx > 0 and space_idx < 30:
                         context = context[space_idx + 1:]
                     context = "..." + context
                 if context_end < len(text):
                     space_idx = context.rfind(" ")
-                    if space_idx > len(context) - 20:
+                    if space_idx > len(context) - 30:
                         context = context[:space_idx]
                     context = context + "..."
 
@@ -576,12 +575,16 @@ async def search_books(q: str, book_id: str = None):
                     "book_id": bid,
                     "book_title": book_title,
                     "chapter_index": idx,
+                    "chapter_href": chapter.href,
                     "chapter_title": chapter.title,
                     "context": context.strip(),
                     "position": pos,
+                    "match_length": len(q),
                 })
 
-                chapter_results += 1
+                if len(results) >= max_total_results:
+                    break
+
                 start = pos + len(q)  # Skip past this match
 
     # Record search in history

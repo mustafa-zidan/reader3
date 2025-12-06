@@ -296,6 +296,24 @@
                 return;
             }
             
+            // Group results by book
+            const grouped = {};
+            results.forEach(r => {
+                if (!grouped[r.book_id]) {
+                    grouped[r.book_id] = {
+                        book: r,
+                        chapters: {}
+                    };
+                }
+                if (!grouped[r.book_id].chapters[r.chapter_index]) {
+                    grouped[r.book_id].chapters[r.chapter_index] = {
+                        chapter: r,
+                        matches: []
+                    };
+                }
+                grouped[r.book_id].chapters[r.chapter_index].matches.push(r);
+            });
+            
             const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
             
             container.innerHTML = `
@@ -304,15 +322,36 @@
                         <span>${results.length} result${results.length > 1 ? 's' : ''} found</span>
                         <button onclick="clearSearch()" style="border: none; background: none; cursor: pointer; color: #999;">✕ Clear</button>
                     </div>
-                    ${results.map(r => `
-                        <div class="search-result" onclick="window.location.href='/read/${r.book_id}/0'">
-                            <div class="search-result-book">${r.book_title || r.book_id}</div>
-                            <div class="search-result-chapter">${r.chapter_title || 'Chapter ' + (r.chapter_index + 1)}</div>
-                            <div class="search-result-context">${r.context.replace(regex, '<mark>$1</mark>')}</div>
+                    ${Object.entries(grouped).map(([bookId, bookData]) => `
+                        <div style="border-bottom: 2px solid #e0e0e0; padding: 10px 0;">
+                            <div style="font-weight: 600; color: #333; padding: 10px 20px; background: #f9f9f9;">
+                                📖 ${bookData.book.book_title}
+                            </div>
+                            ${Object.entries(bookData.chapters).map(([chapIdx, chapData]) => `
+                                <div style="padding: 10px 20px; background: #fafafa; border-left: 3px solid #e0e0e0;">
+                                    <div style="font-weight: 500; color: #555; margin-bottom: 8px; font-size: 0.95em;">
+                                        ${chapData.chapter.chapter_title || 'Chapter ' + (chapData.chapter.chapter_index + 1)} (${chapData.matches.length} match${chapData.matches.length > 1 ? 'es' : ''})
+                                    </div>
+                                    ${chapData.matches.map((r, idx) => `
+                                        <div class="search-result" onclick="goToGlobalSearchResult('${bookId}', ${r.chapter_index}, '${encodeURIComponent(query)}', ${idx})" style="cursor: pointer; padding: 10px 0; border: none; margin: 0;">
+                                            <div class="search-result-context" style="margin: 0;">${r.context.replace(regex, '<mark>$1</mark>')}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `).join('')}
                         </div>
                     `).join('')}
                 </div>
             `;
+        }
+        
+        function goToGlobalSearchResult(bookId, chapterIndex, query, matchIndex) {
+            // Store the search info in sessionStorage for the reader page
+            sessionStorage.setItem('searchQuery', decodeURIComponent(query));
+            sessionStorage.setItem('searchMatchIndex', matchIndex);
+            
+            // Navigate to the book at the correct chapter
+            window.location.href = `/read/${bookId}/${chapterIndex}?search=${encodeURIComponent(query)}`;
         }
         
         function clearSearch() {
