@@ -21,6 +21,12 @@ dev = [
     "pytest>=8.0.0",
     "httpx>=0.28.1",
 ]
+tts = [
+    "torch>=2.0.0",
+    "numpy>=1.20.0",
+    "sounddevice>=0.4.4",
+    "snac>=1.2.1",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

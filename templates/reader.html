@@ -4119,6 +4119,7 @@
         });
 
         // ===== TEXT-TO-SPEECH (TTS) FUNCTIONS =====
+        // Supports both Orpheus TTS (via LM Studio) and browser Web Speech API
 
         let ttsState = {
             isPlaying: false,
@@ -4127,29 +4128,46 @@
             paragraphs: [],
             utterance: null,
             speed: 1.0,
-            voice: null
+            voice: null,
+            // Orpheus TTS state
+            orpheusAvailable: false,
+            orpheusVoices: [],
+            orpheusVoice: 'tara',
+            useOrpheus: false,  // User preference
+            currentAudio: null  // For Orpheus audio playback
         };
 
-        // Initialize TTS - check browser support and get voices
-        function initTTS() {
-            if (!('speechSynthesis' in window)) {
-                console.warn('Text-to-speech not supported in this browser');
-                return false;
+        // Initialize TTS - check Orpheus availability and browser support
+        async function initTTS() {
+            // Check if Orpheus TTS is available
+            try {
+                const response = await fetch('/api/tts/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    ttsState.orpheusAvailable = data.available;
+                    ttsState.orpheusVoices = data.voices || [];
+                    ttsState.orpheusVoice = data.default_voice || 'tara';
+                    if (data.available) {
+                        ttsState.useOrpheus = true;  // Prefer Orpheus if available
+                        console.log('Orpheus TTS available with voices:', data.voices);
+                    }
+                }
+            } catch (error) {
+                console.log('Orpheus TTS not available, using browser TTS');
             }
 
-            // Load voices (they may load asynchronously)
-            speechSynthesis.onvoiceschanged = () => {
-                const voices = speechSynthesis.getVoices();
-                // Try to find a good English voice
-                ttsState.voice = voices.find(v => v.lang.startsWith('en') && v.localService)
-                    || voices.find(v => v.lang.startsWith('en'))
-                    || voices[0];
-            };
+            // Initialize browser TTS as fallback
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = () => {
+                    const voices = speechSynthesis.getVoices();
+                    ttsState.voice = voices.find(v => v.lang.startsWith('en') && v.localService)
+                        || voices.find(v => v.lang.startsWith('en'))
+                        || voices[0];
+                };
+                speechSynthesis.getVoices();
+            }
 
-            // Trigger voice loading
-            speechSynthesis.getVoices();
-
-            return true;
+            return ttsState.orpheusAvailable || ('speechSynthesis' in window);
         }
 
         // Inject speaker icons next to paragraphs in book content
@@ -4205,13 +4223,14 @@
 
         // Start TTS from a specific paragraph
         function ttsStartFromParagraph(index) {
-            if (!('speechSynthesis' in window)) {
-                showToast('Text-to-speech not supported in this browser', 'error');
+            // Check if any TTS is available
+            if (!ttsState.orpheusAvailable && !('speechSynthesis' in window)) {
+                showToast('Text-to-speech not available', 'error');
                 return;
             }
 
             // Stop any current speech
-            speechSynthesis.cancel();
+            ttsStopCurrentSpeech();
 
             // Clear previous highlights
             ttsClearHighlights();
@@ -4227,8 +4246,71 @@
             ttsSpeakCurrentParagraph();
         }
 
+        // Stop current speech (helper)
+        function ttsStopCurrentSpeech() {
+            if (ttsState.currentAudio) {
+                ttsState.currentAudio.pause();
+                ttsState.currentAudio = null;
+            }
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+            }
+        }
+
+        // Speak the current paragraph using Orpheus TTS
+        async function ttsSpeakWithOrpheus(text) {
+            try {
+                const response = await fetch('/api/tts/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: text,
+                        voice: ttsState.orpheusVoice
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    console.error('Orpheus TTS error:', data.error);
+                    return false;
+                }
+
+                // Create audio from base64 data
+                const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.playbackRate = ttsState.speed;
+
+                // Set up event handlers
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    ttsState.currentAudio = null;
+                    if (ttsState.isPlaying && !ttsState.isPaused) {
+                        ttsState.currentParagraphIndex++;
+                        ttsSpeakCurrentParagraph();
+                    }
+                };
+
+                audio.onerror = (e) => {
+                    console.error('Audio playback error:', e);
+                    URL.revokeObjectURL(audioUrl);
+                    ttsState.currentAudio = null;
+                    showToast('Audio playback error', 'error');
+                };
+
+                ttsState.currentAudio = audio;
+                await audio.play();
+                return true;
+
+            } catch (error) {
+                console.error('Orpheus TTS request failed:', error);
+                return false;
+            }
+        }
+
         // Speak the current paragraph
-        function ttsSpeakCurrentParagraph() {
+        async function ttsSpeakCurrentParagraph() {
             if (ttsState.currentParagraphIndex >= ttsState.paragraphs.length) {
                 ttsStop();
                 showToast('Finished reading');
@@ -4248,7 +4330,24 @@
             // Update progress
             ttsUpdateProgress();
 
-            // Create utterance
+            // Update play button
+            document.getElementById('tts-play-btn').innerHTML = '⏸️';
+
+            // Try Orpheus TTS first if available and enabled
+            if (ttsState.useOrpheus && ttsState.orpheusAvailable) {
+                const success = await ttsSpeakWithOrpheus(paragraph.text);
+                if (success) return;
+                // Fall back to browser TTS if Orpheus fails
+                console.log('Falling back to browser TTS');
+            }
+
+            // Use browser speech synthesis
+            if (!('speechSynthesis' in window)) {
+                showToast('No TTS available', 'error');
+                ttsStop();
+                return;
+            }
+
             const utterance = new SpeechSynthesisUtterance(paragraph.text);
             utterance.rate = ttsState.speed;
             utterance.pitch = 1;
@@ -4256,7 +4355,6 @@
                 utterance.voice = ttsState.voice;
             }
 
-            // Event handlers
             utterance.onend = () => {
                 if (ttsState.isPlaying && !ttsState.isPaused) {
                     ttsState.currentParagraphIndex++;
@@ -4274,9 +4372,6 @@
 
             ttsState.utterance = utterance;
             speechSynthesis.speak(utterance);
-
-            // Update play button
-            document.getElementById('tts-play-btn').innerHTML = '⏸️';
         }
 
         // Toggle play/pause
@@ -4291,12 +4386,20 @@
 
             if (ttsState.isPaused) {
                 // Resume
-                speechSynthesis.resume();
+                if (ttsState.currentAudio) {
+                    ttsState.currentAudio.play();
+                } else if ('speechSynthesis' in window) {
+                    speechSynthesis.resume();
+                }
                 ttsState.isPaused = false;
                 document.getElementById('tts-play-btn').innerHTML = '⏸️';
             } else {
                 // Pause
-                speechSynthesis.pause();
+                if (ttsState.currentAudio) {
+                    ttsState.currentAudio.pause();
+                } else if ('speechSynthesis' in window) {
+                    speechSynthesis.pause();
+                }
                 ttsState.isPaused = true;
                 document.getElementById('tts-play-btn').innerHTML = '▶️';
             }
@@ -4305,7 +4408,7 @@
         // Go to previous paragraph
         function ttsPrevParagraph() {
             if (ttsState.currentParagraphIndex > 0) {
-                speechSynthesis.cancel();
+                ttsStopCurrentSpeech();
                 ttsState.currentParagraphIndex--;
                 if (ttsState.isPlaying) {
                     ttsSpeakCurrentParagraph();
@@ -4318,7 +4421,7 @@
         // Go to next paragraph
         function ttsNextParagraph() {
             if (ttsState.currentParagraphIndex < ttsState.paragraphs.length - 1) {
-                speechSynthesis.cancel();
+                ttsStopCurrentSpeech();
                 ttsState.currentParagraphIndex++;
                 if (ttsState.isPlaying) {
                     ttsSpeakCurrentParagraph();
@@ -4333,16 +4436,23 @@
             ttsState.speed = parseFloat(speed);
             document.getElementById('tts-speed-value').textContent = speed + 'x';
 
-            // If currently speaking, restart with new speed
-            if (ttsState.isPlaying && !ttsState.isPaused) {
-                speechSynthesis.cancel();
+            // Update current audio playback rate if using Orpheus
+            if (ttsState.currentAudio) {
+                ttsState.currentAudio.playbackRate = ttsState.speed;
+            }
+
+            // If using browser TTS, restart with new speed
+            if (!ttsState.currentAudio && ttsState.isPlaying && !ttsState.isPaused) {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
                 ttsSpeakCurrentParagraph();
             }
         }
 
         // Stop TTS completely
         function ttsStop() {
-            speechSynthesis.cancel();
+            ttsStopCurrentSpeech();
             ttsState.isPlaying = false;
             ttsState.isPaused = false;
             ttsClearHighlights();
@@ -4368,7 +4478,7 @@
         }
 
         // Read selected text aloud
-        function ttsReadSelection() {
+        async function ttsReadSelection() {
             const selection = window.getSelection();
             const selectedText = selection.toString().trim();
 
@@ -4377,15 +4487,61 @@
                 return;
             }
 
-            if (!('speechSynthesis' in window)) {
-                showToast('Text-to-speech not supported in this browser', 'error');
+            // Check if any TTS is available
+            if (!ttsState.orpheusAvailable && !('speechSynthesis' in window)) {
+                showToast('Text-to-speech not available', 'error');
                 return;
             }
 
             // Stop any current speech
-            speechSynthesis.cancel();
+            ttsStopCurrentSpeech();
 
-            // Create utterance for selected text
+            // Clear selection and hide toolbar
+            selection.removeAllRanges();
+            hideSelectionToolbar();
+
+            showToast('Reading selection...');
+
+            // Try Orpheus TTS first if available
+            if (ttsState.useOrpheus && ttsState.orpheusAvailable) {
+                try {
+                    const response = await fetch('/api/tts/generate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            text: selectedText,
+                            voice: ttsState.orpheusVoice
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        audio.playbackRate = ttsState.speed;
+
+                        audio.onended = () => {
+                            URL.revokeObjectURL(audioUrl);
+                            showToast('Finished reading selection');
+                        };
+
+                        ttsState.currentAudio = audio;
+                        await audio.play();
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Orpheus TTS failed, falling back to browser TTS');
+                }
+            }
+
+            // Fall back to browser speech synthesis
+            if (!('speechSynthesis' in window)) {
+                showToast('Text-to-speech not available', 'error');
+                return;
+            }
+
             const utterance = new SpeechSynthesisUtterance(selectedText);
             utterance.rate = ttsState.speed;
             if (ttsState.voice) {
@@ -4397,11 +4553,6 @@
             };
 
             speechSynthesis.speak(utterance);
-            showToast('Reading selection...');
-
-            // Clear selection
-            selection.removeAllRanges();
-            hideSelectionToolbar();
         }
 
         // Initialize TTS when content loads
@@ -4424,9 +4575,7 @@
 
         // Stop TTS when leaving page
         window.addEventListener('beforeunload', () => {
-            if (speechSynthesis) {
-                speechSynthesis.cancel();
-            }
+            ttsStopCurrentSpeech();
         });
     </script>
 </body>

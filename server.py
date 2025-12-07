@@ -2,6 +2,9 @@ import os
 import pickle
 import shutil
 import sys
+from functools import lru_cache
+from typing import Optional
+
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File
 from fastapi.responses import (
     HTMLResponse,
@@ -10,10 +13,15 @@ from fastapi.responses import (
     PlainTextResponse,
 )
 from fastapi.templating import Jinja2Templates
-from functools import lru_cache
-from typing import Optional
 
 from ai_settings import AISettingsManager
+from orpheus_tts import (
+    is_tts_available,
+    get_available_voices,
+    generate_speech,
+    AVAILABLE_VOICES,
+    DEFAULT_VOICE,
+)
 from reader3 import (
     Book,
     process_epub,
@@ -1449,6 +1457,77 @@ async def clear_chat_history(book_id: str):
     """Clear chat history for a book."""
     ai_settings_manager.clear_chat(book_id)
     return {"status": "cleared", "book_id": book_id}
+
+
+# ===== TTS (TEXT-TO-SPEECH) ENDPOINTS =====
+
+@app.get("/api/tts/status")
+async def get_tts_status():
+    """Check if TTS (Orpheus) is available."""
+    return {
+        "available": is_tts_available(),
+        "voices": get_available_voices(),
+        "default_voice": DEFAULT_VOICE,
+    }
+
+
+@app.get("/api/tts/voices")
+async def get_tts_voices():
+    """Get available TTS voices."""
+    return {
+        "voices": [
+            {"id": v, "name": v.capitalize()} for v in AVAILABLE_VOICES
+        ],
+        "default": DEFAULT_VOICE,
+    }
+
+
+@app.post("/api/tts/generate")
+async def generate_tts(request: Request):
+    """
+    Generate speech from text using Orpheus TTS.
+    
+    Request body:
+    - text: The text to convert to speech
+    - voice: Voice to use (optional, default: tara)
+    - server_url: LM Studio server URL (optional)
+    
+    Returns:
+    - success: boolean
+    - audio_data: base64-encoded WAV audio
+    - duration: audio duration in seconds
+    - error: error message if failed
+    """
+    if not is_tts_available():
+        return {
+            "success": False,
+            "error": "TTS dependencies not installed. Run: pip install reader3[tts]"
+        }
+
+    data = await request.json()
+    text = data.get("text", "").strip()
+
+    if not text:
+        raise HTTPException(status_code=400, detail="No text provided")
+
+    voice = data.get("voice", DEFAULT_VOICE)
+
+    # Get server URL from AI settings if not provided
+    server_url = data.get("server_url")
+    if not server_url:
+        ai_settings = ai_settings_manager.get_settings()
+        server_url = ai_settings.server_url
+
+    result = await generate_speech(
+        text=text,
+        voice=voice,
+        server_url=server_url,
+        temperature=data.get("temperature", 0.6),
+        top_p=data.get("top_p", 0.9),
+        repetition_penalty=data.get("repetition_penalty", 1.1),
+    )
+
+    return result
 
 
 if __name__ == "__main__":
