@@ -308,6 +308,455 @@
         .highlight-menu-color { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
         .highlight-menu-color:hover { transform: scale(1.15); }
         .highlight-menu-color.active { border-color: #333; }
+
+        /* AI Settings Modal */
+        #ai-settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #ai-settings-modal.visible {
+            display: flex;
+        }
+
+        .ai-modal-content {
+            background: #fff;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .ai-modal-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1;
+        }
+
+        .ai-modal-close:hover {
+            color: #fff;
+        }
+
+        .ai-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .ai-form-group {
+            margin-bottom: 20px;
+        }
+
+        .ai-form-group label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .ai-form-group select, .ai-form-group input, .ai-form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        .ai-form-group select:focus, .ai-form-group input:focus, .ai-form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .ai-form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .ai-form-group .hint {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .ai-form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .ai-form-row .ai-form-group {
+            flex: 1;
+        }
+
+        .ai-modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .ai-btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .ai-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-btn-secondary {
+            background: #f0f0f0;
+            color: #555;
+        }
+
+        .ai-btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .ai-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-connection-status {
+            font-size: 0.85em;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-connection-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .ai-connection-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .ai-connection-status.testing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* AI Chat Sidebar */
+        #ai-chat-sidebar {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 400px;
+            height: 100vh;
+            background: #fff;
+            border-left: 1px solid #ddd;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            font-family: -apple-system, sans-serif;
+        }
+
+        #ai-chat-sidebar.visible {
+            right: 0;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header-title {
+            font-weight: 600;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+
+        .chat-header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #f8f9fa;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.assistant {
+            align-self: flex-start;
+            background: #fff;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.assistant pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 0.85em;
+        }
+
+        .chat-message.assistant code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .chat-message.system {
+            align-self: center;
+            background: #fff3cd;
+            color: #856404;
+            font-size: 0.85em;
+            padding: 8px 16px;
+        }
+
+        .chat-message.error {
+            align-self: center;
+            background: #f8d7da;
+            color: #721c24;
+            font-size: 0.85em;
+            padding: 8px 16px;
+        }
+
+        .chat-typing {
+            align-self: flex-start;
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            gap: 4px;
+        }
+
+        .chat-typing span {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .chat-typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .chat-typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9em;
+            resize: none;
+            max-height: 120px;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .chat-empty-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .chat-empty-text {
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+
+        .chat-empty-hint {
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+
+        .chat-quote {
+            background: #f0f0f0;
+            border-left: 3px solid #667eea;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: #555;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* AI toolbar buttons */
+        .ai-toolbar-btn {
+            position: relative;
+        }
+
+        .ai-toolbar-btn.has-indicator::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
         .highlight-menu-color.yellow { background: #ffeb3b; }
         .highlight-menu-color.green { background: #4caf50; }
         .highlight-menu-color.blue { background: #2196f3; }
@@ -344,6 +793,7 @@
         <button onclick="openAddNoteModal()" title="Add a note">📝 Note</button>
         <button onclick="copySelectedText()" title="Copy selected text">📋 Copy</button>
         <button onclick="appendToClipboard()" title="Add to existing clipboard">➕ Add to Batch</button>
+        <button onclick="sendToChat()" title="Send to AI Chat">💬 Chat</button>
         <button onclick="clearSelection()" title="Clear selection">✕</button>
     </div>
     
@@ -527,6 +977,100 @@
             </div>
         </div>
     </div>
+
+    <!-- AI Settings Modal -->
+    <div id="ai-settings-modal">
+        <div class="ai-modal-content">
+            <div class="ai-modal-header">
+                <h3>🤖 AI Assistant Settings</h3>
+                <button class="ai-modal-close" onclick="closeAISettings()">✕</button>
+            </div>
+            <div class="ai-modal-body">
+                <div class="ai-form-group">
+                    <label>AI Provider</label>
+                    <select id="ai-provider" onchange="onProviderChange()">
+                        <option value="lm_studio">LM Studio</option>
+                        <option value="ollama">Ollama</option>
+                    </select>
+                    <div class="hint">Select your local AI provider</div>
+                </div>
+                <div class="ai-form-group">
+                    <label>Server URL</label>
+                    <input type="text" id="ai-server-url" placeholder="http://localhost:1234/v1">
+                    <div class="hint">LM Studio default: http://localhost:1234/v1 | Ollama default:
+                        http://localhost:11434
+                    </div>
+                </div>
+                <div class="ai-form-group">
+                    <label>Model</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="ai-model" style="flex: 1;">
+                            <option value="">Select a model...</option>
+                        </select>
+                        <button class="ai-btn ai-btn-secondary" onclick="refreshModels()" title="Refresh model list">🔄
+                        </button>
+                    </div>
+                    <div class="hint">Available models from your AI provider</div>
+                </div>
+                <div class="ai-form-row">
+                    <div class="ai-form-group">
+                        <label>Temperature</label>
+                        <input type="number" id="ai-temperature" min="0" max="2" step="0.1" value="0.7">
+                        <div class="hint">Creativity (0-2)</div>
+                    </div>
+                    <div class="ai-form-group">
+                        <label>Max Tokens</label>
+                        <input type="number" id="ai-max-tokens" min="100" max="8192" step="100" value="2048">
+                        <div class="hint">Response length limit</div>
+                    </div>
+                </div>
+                <div class="ai-form-group">
+                    <label>System Prompt</label>
+                    <textarea id="ai-system-prompt" placeholder="You are a helpful reading assistant..."></textarea>
+                    <div class="hint">Instructions for how the AI should behave</div>
+                </div>
+            </div>
+            <div class="ai-modal-footer">
+                <div id="ai-connection-status"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="ai-btn ai-btn-secondary" onclick="testAIConnection()">🔌 Test Connection</button>
+                    <button class="ai-btn ai-btn-primary" onclick="saveAISettings()">💾 Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Sidebar -->
+    <div id="ai-chat-sidebar">
+        <div class="chat-header">
+            <div class="chat-header-title">💬 AI Chat</div>
+            <div class="chat-header-actions">
+                <button class="chat-header-btn" onclick="openAISettings()" title="Settings">⚙️</button>
+                <button class="chat-header-btn" onclick="clearChatHistory()" title="Clear chat">🗑️</button>
+                <button class="chat-header-btn" onclick="toggleChatSidebar()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-empty">
+                <div class="chat-empty-icon">💭</div>
+                <div class="chat-empty-text">Start a conversation</div>
+                <div class="chat-empty-hint">Ask questions about what you're reading or select text and send it to
+                    chat
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <textarea class="chat-input" id="chat-input" placeholder="Ask about the text..." rows="1"
+                          onkeydown="handleChatKeydown(event)" oninput="autoResizeChatInput()"></textarea>
+                <button class="chat-send-btn" onclick="sendChatMessage()" id="chat-send-btn" title="Send message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- PDF floating page indicator -->
     {% if is_pdf %}
@@ -604,6 +1148,12 @@
                 {% endif %}
                 <button class="toolbar-btn" type="button" onclick="copyAllLoaded()" id="copy-all-btn" title="Copy all loaded content">📋 Copy All</button>
                 <button class="toolbar-btn" type="button" onclick="showBatchClipboard()" id="batch-clipboard-btn" style="display: none;">🗂️ Batch (<span id="batch-count">0</span>)</button>
+                <button class="toolbar-btn ai-toolbar-btn" type="button" onclick="openAISettings()" id="ai-settings-btn"
+                        title="AI Settings">🤖 AI
+                </button>
+                <button class="toolbar-btn ai-toolbar-btn" type="button" onclick="toggleChatSidebar()" id="ai-chat-btn"
+                        title="AI Chat">💬 Chat
+                </button>
             </div>
             <div id="copy-status" aria-live="polite"></div>
             <div class="book-content" id="book-content">
@@ -3014,6 +3564,398 @@
                 openAddNoteModal();
             });
         }
+
+        // ===== AI ASSISTANT FUNCTIONS =====
+
+        let aiSettings = {
+            provider: 'lm_studio',
+            server_url: 'http://localhost:1234/v1',
+            model: '',
+            temperature: 0.7,
+            max_tokens: 2048,
+            system_prompt: 'You are a helpful reading assistant. Help the user understand and discuss the text they are reading.',
+            enabled: false
+        };
+        let chatMessages = [];
+        let isChatLoading = false;
+
+        // Load AI settings on page load
+        async function loadAISettings() {
+            try {
+                const response = await fetch('/api/ai/settings');
+                if (response.ok) {
+                    const data = await response.json();
+                    aiSettings = {...aiSettings, ...data};
+                    updateAISettingsForm();
+                    updateAIButtonIndicator();
+                }
+            } catch (error) {
+                console.error('Failed to load AI settings:', error);
+            }
+        }
+
+        // Update form with current settings
+        function updateAISettingsForm() {
+            document.getElementById('ai-provider').value = aiSettings.provider || 'lm_studio';
+            document.getElementById('ai-server-url').value = aiSettings.server_url || '';
+            document.getElementById('ai-model').value = aiSettings.model || '';
+            document.getElementById('ai-temperature').value = aiSettings.temperature || 0.7;
+            document.getElementById('ai-max-tokens').value = aiSettings.max_tokens || 2048;
+            document.getElementById('ai-system-prompt').value = aiSettings.system_prompt || '';
+        }
+
+        // Update AI button indicator based on connection status
+        function updateAIButtonIndicator() {
+            const btn = document.getElementById('ai-settings-btn');
+            if (aiSettings.enabled && aiSettings.model) {
+                btn.classList.add('has-indicator');
+            } else {
+                btn.classList.remove('has-indicator');
+            }
+        }
+
+        // Open AI settings modal
+        function openAISettings() {
+            updateAISettingsForm();
+            document.getElementById('ai-settings-modal').classList.add('visible');
+            refreshModels();
+        }
+
+        // Close AI settings modal
+        function closeAISettings() {
+            document.getElementById('ai-settings-modal').classList.remove('visible');
+        }
+
+        // Handle provider change
+        async function onProviderChange() {
+            const provider = document.getElementById('ai-provider').value;
+            try {
+                const response = await fetch(`/api/ai/default-url/${provider}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('ai-server-url').value = data.url;
+                }
+            } catch (error) {
+                console.error('Failed to get default URL:', error);
+            }
+            // Clear model selection when provider changes
+            document.getElementById('ai-model').innerHTML = '<option value="">Select a model...</option>';
+        }
+
+        // Refresh available models
+        async function refreshModels() {
+            const modelSelect = document.getElementById('ai-model');
+            const currentModel = modelSelect.value;
+
+            // First save current provider/URL to fetch models from the right source
+            const provider = document.getElementById('ai-provider').value;
+            const serverUrl = document.getElementById('ai-server-url').value;
+
+            await fetch('/api/ai/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({provider, server_url: serverUrl})
+            });
+
+            modelSelect.innerHTML = '<option value="">Loading models...</option>';
+
+            try {
+                const response = await fetch('/api/ai/models');
+                if (response.ok) {
+                    const data = await response.json();
+                    modelSelect.innerHTML = '<option value="">Select a model...</option>';
+
+                    if (data.models && data.models.length > 0) {
+                        data.models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.name;
+                            if (model.id === currentModel || model.id === aiSettings.model) {
+                                option.selected = true;
+                            }
+                            modelSelect.appendChild(option);
+                        });
+                    } else {
+                        modelSelect.innerHTML = '<option value="">No models found</option>';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch models:', error);
+                modelSelect.innerHTML = '<option value="">Error loading models</option>';
+            }
+        }
+
+        // Test AI connection
+        async function testAIConnection() {
+            const statusEl = document.getElementById('ai-connection-status');
+            statusEl.className = 'ai-connection-status testing';
+            statusEl.innerHTML = '⏳ Testing connection...';
+
+            // Save current settings first
+            const provider = document.getElementById('ai-provider').value;
+            const serverUrl = document.getElementById('ai-server-url').value;
+
+            await fetch('/api/ai/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({provider, server_url: serverUrl})
+            });
+
+            try {
+                const response = await fetch('/api/ai/test-connection', {method: 'POST'});
+                const data = await response.json();
+
+                if (data.success) {
+                    statusEl.className = 'ai-connection-status success';
+                    statusEl.innerHTML = '✓ ' + data.message;
+                    refreshModels();
+                } else {
+                    statusEl.className = 'ai-connection-status error';
+                    statusEl.innerHTML = '✕ ' + data.message;
+                }
+            } catch (error) {
+                statusEl.className = 'ai-connection-status error';
+                statusEl.innerHTML = '✕ Connection failed: ' + error.message;
+            }
+        }
+
+        // Save AI settings
+        async function saveAISettings() {
+            const settings = {
+                provider: document.getElementById('ai-provider').value,
+                server_url: document.getElementById('ai-server-url').value,
+                model: document.getElementById('ai-model').value,
+                temperature: parseFloat(document.getElementById('ai-temperature').value),
+                max_tokens: parseInt(document.getElementById('ai-max-tokens').value),
+                system_prompt: document.getElementById('ai-system-prompt').value,
+                enabled: true
+            };
+
+            try {
+                const response = await fetch('/api/ai/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    aiSettings = {...aiSettings, ...settings};
+                    updateAIButtonIndicator();
+                    showToast('AI settings saved! 🤖');
+                    closeAISettings();
+                } else {
+                    showToast('Failed to save settings', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save AI settings:', error);
+                showToast('Failed to save settings', 'error');
+            }
+        }
+
+        // Toggle chat sidebar
+        function toggleChatSidebar() {
+            const sidebar = document.getElementById('ai-chat-sidebar');
+            sidebar.classList.toggle('visible');
+
+            if (sidebar.classList.contains('visible')) {
+                loadChatHistory();
+                document.getElementById('chat-input').focus();
+            }
+        }
+
+        // Load chat history for current book
+        async function loadChatHistory() {
+            try {
+                const response = await fetch(`/api/ai/chat/${encodeURIComponent(bookId)}/messages`);
+                if (response.ok) {
+                    const data = await response.json();
+                    chatMessages = data.messages || [];
+                    renderChatMessages();
+                }
+            } catch (error) {
+                console.error('Failed to load chat history:', error);
+            }
+        }
+
+        // Render chat messages
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages');
+
+            if (chatMessages.length === 0) {
+                container.innerHTML = `
+                    <div class="chat-empty">
+                        <div class="chat-empty-icon">💭</div>
+                        <div class="chat-empty-text">Start a conversation</div>
+                        <div class="chat-empty-hint">Ask questions about what you're reading or select text and send it to chat</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = chatMessages.map(msg => {
+                const content = escapeHtml(msg.content).replace(/\n/g, '<br>');
+                return `<div class="chat-message ${msg.role}">${content}</div>`;
+            }).join('');
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Handle chat input keydown
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        }
+
+        // Auto-resize chat input
+        function autoResizeChatInput() {
+            const input = document.getElementById('chat-input');
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        }
+
+        // Send chat message
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message || isChatLoading) return;
+
+            if (!aiSettings.model) {
+                showToast('Please configure AI settings first', 'error');
+                openAISettings();
+                return;
+            }
+
+            // Add user message to UI
+            chatMessages.push({role: 'user', content: message});
+            renderChatMessages();
+
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show loading indicator
+            isChatLoading = true;
+            const container = document.getElementById('chat-messages');
+            container.innerHTML += '<div class="chat-typing"><span></span><span></span><span></span></div>';
+            container.scrollTop = container.scrollHeight;
+
+            // Prepare messages for API
+            const apiMessages = chatMessages.map(m => ({
+                role: m.role,
+                content: m.content
+            }));
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        messages: apiMessages,
+                        book_id: bookId
+                    })
+                });
+
+                const data = await response.json();
+
+                // Remove loading indicator
+                const typingEl = container.querySelector('.chat-typing');
+                if (typingEl) typingEl.remove();
+
+                if (data.success) {
+                    chatMessages.push({role: 'assistant', content: data.content});
+                    renderChatMessages();
+                } else {
+                    // Show error message
+                    container.innerHTML += `<div class="chat-message error">Error: ${escapeHtml(data.error)}</div>`;
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                const typingEl = container.querySelector('.chat-typing');
+                if (typingEl) typingEl.remove();
+                container.innerHTML += `<div class="chat-message error">Connection error. Please check your AI settings.</div>`;
+                container.scrollTop = container.scrollHeight;
+            } finally {
+                isChatLoading = false;
+            }
+        }
+
+        // Clear chat history
+        async function clearChatHistory() {
+            if (!confirm('Clear all chat messages for this book?')) return;
+
+            try {
+                await fetch(`/api/ai/chat/${encodeURIComponent(bookId)}`, {method: 'DELETE'});
+                chatMessages = [];
+                renderChatMessages();
+                showToast('Chat history cleared');
+            } catch (error) {
+                console.error('Failed to clear chat:', error);
+                showToast('Failed to clear chat', 'error');
+            }
+        }
+
+        // Send selected text to chat
+        function sendToChat() {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+
+            if (!selectedText) {
+                showToast('Select text first', 'error');
+                return;
+            }
+
+            // Open chat sidebar if not visible
+            const sidebar = document.getElementById('ai-chat-sidebar');
+            if (!sidebar.classList.contains('visible')) {
+                toggleChatSidebar();
+            }
+
+            // Add quoted text to input
+            const input = document.getElementById('chat-input');
+            input.value = `"${selectedText}"\n\n`;
+            input.focus();
+            autoResizeChatInput();
+
+            // Clear selection
+            selection.removeAllRanges();
+            hideSelectionToolbar();
+
+            showToast('Text added to chat input');
+        }
+
+        // Hide selection toolbar helper
+        function hideSelectionToolbar() {
+            const toolbar = document.getElementById('selection-toolbar');
+            if (toolbar) toolbar.classList.remove('visible');
+        }
+
+        // Initialize AI on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadAISettings();
+        });
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeAISettings();
+                const chatSidebar = document.getElementById('ai-chat-sidebar');
+                if (chatSidebar.classList.contains('visible')) {
+                    toggleChatSidebar();
+                }
+            }
+        });
+
+        // Close AI settings modal when clicking outside
+        document.getElementById('ai-settings-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeAISettings();
+            }
+        });
     </script>
 </body>
 </html>

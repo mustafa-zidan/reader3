@@ -1,9 +1,7 @@
 import os
 import pickle
-from functools import lru_cache
-from typing import Optional
-
 import shutil
+import sys
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File
 from fastapi.responses import (
     HTMLResponse,
@@ -12,7 +10,10 @@ from fastapi.responses import (
     PlainTextResponse,
 )
 from fastapi.templating import Jinja2Templates
+from functools import lru_cache
+from typing import Optional
 
+from ai_settings import AISettingsManager
 from reader3 import (
     Book,
     process_epub,
@@ -31,8 +32,6 @@ from user_data import (
     Annotation,
     generate_id,
 )
-
-import sys
 
 app = FastAPI()
 
@@ -67,6 +66,9 @@ else:
 
 # Initialize user data manager
 user_data_manager = UserDataManager(BOOKS_DIR)
+
+# Initialize AI settings manager
+ai_settings_manager = AISettingsManager(BOOKS_DIR)
 
 print(f"Books directory: {BOOKS_DIR}")
 print(f"Templates directory: {templates_dir}")
@@ -1354,6 +1356,99 @@ async def export_annotations(book_id: str, format: str = "markdown"):
                     f"attachment; filename={book_id}_annotations.json"
             }
         )
+
+
+# ===== AI SETTINGS & CHAT ENDPOINTS =====
+
+@app.get("/api/ai/settings")
+async def get_ai_settings():
+    """Get current AI settings."""
+    settings = ai_settings_manager.get_settings()
+    return {
+        "provider": settings.provider,
+        "server_url": settings.server_url,
+        "model": settings.model,
+        "enabled": settings.enabled,
+        "temperature": settings.temperature,
+        "max_tokens": settings.max_tokens,
+        "system_prompt": settings.system_prompt,
+    }
+
+
+@app.post("/api/ai/settings")
+async def save_ai_settings(request: Request):
+    """Save AI settings."""
+    data = await request.json()
+    settings = ai_settings_manager.update_settings(**data)
+    return {
+        "status": "saved",
+        "provider": settings.provider,
+        "server_url": settings.server_url,
+        "model": settings.model,
+        "enabled": settings.enabled,
+    }
+
+
+@app.get("/api/ai/default-url/{provider}")
+async def get_default_url(provider: str):
+    """Get default server URL for a provider."""
+    url = ai_settings_manager.get_default_url(provider)
+    return {"provider": provider, "url": url}
+
+
+@app.post("/api/ai/test-connection")
+async def test_ai_connection():
+    """Test connection to the configured AI provider."""
+    result = await ai_settings_manager.test_connection()
+    return result
+
+
+@app.get("/api/ai/models")
+async def list_ai_models():
+    """List available models from the configured provider."""
+    models = await ai_settings_manager.list_models()
+    return {"models": models}
+
+
+@app.post("/api/ai/chat")
+async def ai_chat(request: Request):
+    """Send a chat message and get a response."""
+    data = await request.json()
+    messages = data.get("messages", [])
+    book_id = data.get("book_id")
+
+    if not messages:
+        raise HTTPException(status_code=400, detail="No messages provided")
+
+    result = await ai_settings_manager.chat(messages, book_id)
+
+    if result.get("success"):
+        # Store messages in chat session if book_id provided
+        if book_id:
+            # Add user message
+            user_msg = messages[-1] if messages else None
+            if user_msg and user_msg.get("role") == "user":
+                ai_settings_manager.add_message(book_id, "user", user_msg.get("content", ""))
+            # Add assistant response
+            ai_settings_manager.add_message(book_id, "assistant", result.get("content", ""))
+
+        return {"success": True, "content": result.get("content")}
+    else:
+        return {"success": False, "error": result.get("error", "Unknown error")}
+
+
+@app.get("/api/ai/chat/{book_id}/messages")
+async def get_chat_messages(book_id: str):
+    """Get chat messages for a book."""
+    messages = ai_settings_manager.get_messages(book_id)
+    return {"book_id": book_id, "messages": messages}
+
+
+@app.delete("/api/ai/chat/{book_id}")
+async def clear_chat_history(book_id: str):
+    """Clear chat history for a book."""
+    ai_settings_manager.clear_chat(book_id)
+    return {"status": "cleared", "book_id": book_id}
 
 
 if __name__ == "__main__":
