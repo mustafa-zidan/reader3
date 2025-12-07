@@ -13,6 +13,7 @@ wheels/
 *_data/
 *.epub
 user_data.json
+ai_settings.json
 
 # intellij files
 .idea
