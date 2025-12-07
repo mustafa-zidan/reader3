@@ -23,15 +23,15 @@ The browser opens automatically. Upload a book and start reading!
 - 🔍 **Search** — Full-text search across all books (Ctrl/⌘+F)
 - 📊 **Reading Progress** — Auto-saves position, resume where you left off
 - 📤 **Export** — Export notes to JSON or Markdown
-- 📋 **Easy Copy** — Batch select and copy text for LLM conversations
+- 📋 **Easy Copy** — Batch selects and copies text for LLM conversations
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/⌘+F` | Search |
+| Shortcut   | Action          |
+|------------|-----------------|
+| `Ctrl/⌘+F` | Search          |
 | `Ctrl/⌘+B` | Bookmarks panel |
-| `Escape` | Close modals |
+| `Escape`   | Close modals    |
 
 ## Building Executable
 
