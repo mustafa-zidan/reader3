@@ -763,6 +763,149 @@
         .highlight-menu-color.pink { background: #e91e63; }
         .highlight-menu-color.purple { background: #9c27b0; }
 
+        /* TTS Speaker Icons */
+        .tts-speaker-btn {
+            position: absolute;
+            left: -35px;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .tts-paragraph-wrapper {
+            position: relative;
+        }
+
+        .tts-paragraph-wrapper:hover .tts-speaker-btn {
+            opacity: 0.7;
+        }
+
+        .tts-speaker-btn:hover {
+            opacity: 1 !important;
+            background: #667eea;
+            color: #fff;
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .tts-speaker-btn.speaking {
+            opacity: 1 !important;
+            background: #e74c3c;
+            color: #fff;
+            border-color: #e74c3c;
+            animation: tts-pulse 1.5s infinite;
+        }
+
+        @keyframes tts-pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+            }
+        }
+
+        /* TTS speaking highlight */
+        .tts-speaking-text {
+            background: linear-gradient(to bottom, rgba(255, 235, 59, 0.4), rgba(255, 235, 59, 0.2));
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        /* TTS Controls floating bar */
+        #tts-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            font-family: -apple-system, sans-serif;
+            font-size: 0.9em;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1100;
+        }
+
+        #tts-controls.visible {
+            display: flex;
+        }
+
+        .tts-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            transition: all 0.2s;
+        }
+
+        .tts-control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .tts-control-btn.active {
+            background: #667eea;
+        }
+
+        .tts-progress-text {
+            min-width: 100px;
+            text-align: center;
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .tts-speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tts-speed-control input[type="range"] {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .tts-speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .tts-speed-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            min-width: 40px;
+        }
+
     </style>
 </head>
 <body class="{{ 'is-pdf' if is_pdf else '' }}">
@@ -794,6 +937,7 @@
         <button onclick="copySelectedText()" title="Copy selected text">📋 Copy</button>
         <button onclick="appendToClipboard()" title="Add to existing clipboard">➕ Add to Batch</button>
         <button onclick="sendToChat()" title="Send to AI Chat">💬 Chat</button>
+        <button onclick="ttsReadSelection()" title="Read aloud">🔊 Read</button>
         <button onclick="clearSelection()" title="Clear selection">✕</button>
     </div>
     
@@ -828,6 +972,23 @@
         <span class="resume-text">Continue reading from where you left off?</span>
         <button class="resume-btn" onclick="resumeReading()">Resume</button>
         <button class="resume-dismiss" onclick="dismissResume()">✕</button>
+    </div>
+
+    <!-- TTS Controls floating bar -->
+    <div id="tts-controls">
+        <button class="tts-control-btn" id="tts-prev-btn" onclick="ttsPrevParagraph()" title="Previous paragraph">⏮️
+        </button>
+        <button class="tts-control-btn" id="tts-play-btn" onclick="ttsTogglePlay()" title="Play/Pause">▶️</button>
+        <button class="tts-control-btn" id="tts-next-btn" onclick="ttsNextParagraph()" title="Next paragraph">⏭️
+        </button>
+        <span class="tts-progress-text" id="tts-progress">0 / 0</span>
+        <div class="tts-speed-control">
+            <span class="tts-speed-label">Speed:</span>
+            <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1"
+                   onchange="ttsSetSpeed(this.value)">
+            <span class="tts-speed-label" id="tts-speed-value">1x</span>
+        </div>
+        <button class="tts-control-btn" id="tts-stop-btn" onclick="ttsStop()" title="Stop">⏹️</button>
     </div>
     
     <!-- Bookmarks/Highlights Panel -->
@@ -3954,6 +4115,317 @@
         document.getElementById('ai-settings-modal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeAISettings();
+            }
+        });
+
+        // ===== TEXT-TO-SPEECH (TTS) FUNCTIONS =====
+
+        let ttsState = {
+            isPlaying: false,
+            isPaused: false,
+            currentParagraphIndex: 0,
+            paragraphs: [],
+            utterance: null,
+            speed: 1.0,
+            voice: null
+        };
+
+        // Initialize TTS - check browser support and get voices
+        function initTTS() {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Text-to-speech not supported in this browser');
+                return false;
+            }
+
+            // Load voices (they may load asynchronously)
+            speechSynthesis.onvoiceschanged = () => {
+                const voices = speechSynthesis.getVoices();
+                // Try to find a good English voice
+                ttsState.voice = voices.find(v => v.lang.startsWith('en') && v.localService)
+                    || voices.find(v => v.lang.startsWith('en'))
+                    || voices[0];
+            };
+
+            // Trigger voice loading
+            speechSynthesis.getVoices();
+
+            return true;
+        }
+
+        // Inject speaker icons next to paragraphs in book content
+        function injectSpeakerIcons() {
+            const bookContent = document.getElementById('book-content');
+            if (!bookContent) return;
+
+            // Find all paragraphs and text-containing elements
+            const textElements = bookContent.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
+
+            ttsState.paragraphs = [];
+
+            textElements.forEach((el, index) => {
+                // Skip empty elements
+                const text = el.textContent.trim();
+                if (!text || text.length < 10) return;
+
+                // Skip if already wrapped
+                if (el.parentElement.classList.contains('tts-paragraph-wrapper')) return;
+
+                // Create wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'tts-paragraph-wrapper';
+
+                // Create speaker button
+                const speakerBtn = document.createElement('button');
+                speakerBtn.className = 'tts-speaker-btn';
+                speakerBtn.innerHTML = '🔊';
+                speakerBtn.title = 'Read aloud';
+                speakerBtn.dataset.paragraphIndex = ttsState.paragraphs.length;
+                speakerBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    ttsStartFromParagraph(parseInt(speakerBtn.dataset.paragraphIndex));
+                };
+
+                // Wrap the element
+                el.parentNode.insertBefore(wrapper, el);
+                wrapper.appendChild(speakerBtn);
+                wrapper.appendChild(el);
+
+                // Store paragraph reference
+                ttsState.paragraphs.push({
+                    element: el,
+                    wrapper: wrapper,
+                    button: speakerBtn,
+                    text: text
+                });
+            });
+
+            console.log(`TTS: Injected ${ttsState.paragraphs.length} speaker icons`);
+        }
+
+        // Start TTS from a specific paragraph
+        function ttsStartFromParagraph(index) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Text-to-speech not supported in this browser', 'error');
+                return;
+            }
+
+            // Stop any current speech
+            speechSynthesis.cancel();
+
+            // Clear previous highlights
+            ttsClearHighlights();
+
+            ttsState.currentParagraphIndex = index;
+            ttsState.isPlaying = true;
+            ttsState.isPaused = false;
+
+            // Show controls
+            document.getElementById('tts-controls').classList.add('visible');
+
+            // Start speaking
+            ttsSpeakCurrentParagraph();
+        }
+
+        // Speak the current paragraph
+        function ttsSpeakCurrentParagraph() {
+            if (ttsState.currentParagraphIndex >= ttsState.paragraphs.length) {
+                ttsStop();
+                showToast('Finished reading');
+                return;
+            }
+
+            const paragraph = ttsState.paragraphs[ttsState.currentParagraphIndex];
+
+            // Highlight current paragraph
+            ttsClearHighlights();
+            paragraph.element.classList.add('tts-speaking-text');
+            paragraph.button.classList.add('speaking');
+
+            // Scroll paragraph into view
+            paragraph.element.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+            // Update progress
+            ttsUpdateProgress();
+
+            // Create utterance
+            const utterance = new SpeechSynthesisUtterance(paragraph.text);
+            utterance.rate = ttsState.speed;
+            utterance.pitch = 1;
+            if (ttsState.voice) {
+                utterance.voice = ttsState.voice;
+            }
+
+            // Event handlers
+            utterance.onend = () => {
+                if (ttsState.isPlaying && !ttsState.isPaused) {
+                    ttsState.currentParagraphIndex++;
+                    ttsSpeakCurrentParagraph();
+                }
+            };
+
+            utterance.onerror = (e) => {
+                console.error('TTS error:', e);
+                if (e.error !== 'canceled') {
+                    showToast('Speech error occurred', 'error');
+                    ttsStop();
+                }
+            };
+
+            ttsState.utterance = utterance;
+            speechSynthesis.speak(utterance);
+
+            // Update play button
+            document.getElementById('tts-play-btn').innerHTML = '⏸️';
+        }
+
+        // Toggle play/pause
+        function ttsTogglePlay() {
+            if (!ttsState.isPlaying) {
+                // Start from beginning if not playing
+                if (ttsState.paragraphs.length > 0) {
+                    ttsStartFromParagraph(ttsState.currentParagraphIndex);
+                }
+                return;
+            }
+
+            if (ttsState.isPaused) {
+                // Resume
+                speechSynthesis.resume();
+                ttsState.isPaused = false;
+                document.getElementById('tts-play-btn').innerHTML = '⏸️';
+            } else {
+                // Pause
+                speechSynthesis.pause();
+                ttsState.isPaused = true;
+                document.getElementById('tts-play-btn').innerHTML = '▶️';
+            }
+        }
+
+        // Go to previous paragraph
+        function ttsPrevParagraph() {
+            if (ttsState.currentParagraphIndex > 0) {
+                speechSynthesis.cancel();
+                ttsState.currentParagraphIndex--;
+                if (ttsState.isPlaying) {
+                    ttsSpeakCurrentParagraph();
+                } else {
+                    ttsUpdateProgress();
+                }
+            }
+        }
+
+        // Go to next paragraph
+        function ttsNextParagraph() {
+            if (ttsState.currentParagraphIndex < ttsState.paragraphs.length - 1) {
+                speechSynthesis.cancel();
+                ttsState.currentParagraphIndex++;
+                if (ttsState.isPlaying) {
+                    ttsSpeakCurrentParagraph();
+                } else {
+                    ttsUpdateProgress();
+                }
+            }
+        }
+
+        // Set speech speed
+        function ttsSetSpeed(speed) {
+            ttsState.speed = parseFloat(speed);
+            document.getElementById('tts-speed-value').textContent = speed + 'x';
+
+            // If currently speaking, restart with new speed
+            if (ttsState.isPlaying && !ttsState.isPaused) {
+                speechSynthesis.cancel();
+                ttsSpeakCurrentParagraph();
+            }
+        }
+
+        // Stop TTS completely
+        function ttsStop() {
+            speechSynthesis.cancel();
+            ttsState.isPlaying = false;
+            ttsState.isPaused = false;
+            ttsClearHighlights();
+
+            // Hide controls
+            document.getElementById('tts-controls').classList.remove('visible');
+            document.getElementById('tts-play-btn').innerHTML = '▶️';
+        }
+
+        // Clear all TTS highlights
+        function ttsClearHighlights() {
+            ttsState.paragraphs.forEach(p => {
+                p.element.classList.remove('tts-speaking-text');
+                p.button.classList.remove('speaking');
+            });
+        }
+
+        // Update progress display
+        function ttsUpdateProgress() {
+            const current = ttsState.currentParagraphIndex + 1;
+            const total = ttsState.paragraphs.length;
+            document.getElementById('tts-progress').textContent = `${current} / ${total}`;
+        }
+
+        // Read selected text aloud
+        function ttsReadSelection() {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+
+            if (!selectedText) {
+                showToast('Select text first', 'error');
+                return;
+            }
+
+            if (!('speechSynthesis' in window)) {
+                showToast('Text-to-speech not supported in this browser', 'error');
+                return;
+            }
+
+            // Stop any current speech
+            speechSynthesis.cancel();
+
+            // Create utterance for selected text
+            const utterance = new SpeechSynthesisUtterance(selectedText);
+            utterance.rate = ttsState.speed;
+            if (ttsState.voice) {
+                utterance.voice = ttsState.voice;
+            }
+
+            utterance.onend = () => {
+                showToast('Finished reading selection');
+            };
+
+            speechSynthesis.speak(utterance);
+            showToast('Reading selection...');
+
+            // Clear selection
+            selection.removeAllRanges();
+            hideSelectionToolbar();
+        }
+
+        // Initialize TTS when content loads
+        document.addEventListener('DOMContentLoaded', function () {
+            initTTS();
+            // Delay injection to allow content to fully render
+            setTimeout(injectSpeakerIcons, 500);
+        });
+
+        // Re-inject speaker icons when navigating chapters
+        const originalLoadChapter = typeof loadChapter !== 'undefined' ? loadChapter : null;
+        if (originalLoadChapter) {
+            loadChapter = function (...args) {
+                const result = originalLoadChapter.apply(this, args);
+                // Re-inject after chapter loads
+                setTimeout(injectSpeakerIcons, 500);
+                return result;
+            };
+        }
+
+        // Stop TTS when leaving page
+        window.addEventListener('beforeunload', () => {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
             }
         });
     </script>
