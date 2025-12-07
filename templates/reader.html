@@ -932,13 +932,61 @@
             <button class="highlight-color-btn pink" onclick="highlightSelection('pink')" title="Highlight pink"></button>
             <button class="highlight-color-btn purple" onclick="highlightSelection('purple')" title="Highlight purple"></button>
         </div>
-        <button onclick="addBookmark()" title="Bookmark this passage">🔖 Bookmark</button>
-        <button onclick="openAddNoteModal()" title="Add a note">📝 Note</button>
-        <button onclick="copySelectedText()" title="Copy selected text">📋 Copy</button>
-        <button onclick="appendToClipboard()" title="Add to existing clipboard">➕ Add to Batch</button>
-        <button onclick="sendToChat()" title="Send to AI Chat">💬 Chat</button>
-        <button onclick="ttsReadSelection()" title="Read aloud">🔊 Read</button>
-        <button onclick="clearSelection()" title="Clear selection">✕</button>
+        <button onclick="addBookmark()" title="Bookmark this passage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Bookmark
+        </button>
+        <button onclick="openAddNoteModal()" title="Add a note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Note
+        </button>
+        <button onclick="copySelectedText()" title="Copy selected text">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+        </button>
+        <button onclick="appendToClipboard()" title="Add to existing clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                <line x1="12" y1="8" x2="12" y2="14"></line>
+                <line x1="9" y1="11" x2="15" y2="11"></line>
+            </svg>
+            Add to Batch
+        </button>
+        <button onclick="sendToChat()" title="Send to AI Chat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Chat
+        </button>
+        <button onclick="ttsReadSelection()" title="Read aloud">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            Read
+        </button>
+        <button onclick="clearSelection()" title="Clear selection">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
     </div>
     
     <!-- Copy toast notification -->
@@ -953,13 +1001,35 @@
             <div class="highlight-menu-color pink" onclick="changeHighlightColor('pink')" title="Pink"></div>
             <div class="highlight-menu-color purple" onclick="changeHighlightColor('purple')" title="Purple"></div>
         </div>
-        <div class="highlight-menu-item" onclick="copyHighlightText()">📋 Copy text</div>
-        <div class="highlight-menu-item delete" onclick="deleteCurrentHighlight()">🗑️ Delete highlight</div>
+        <div class="highlight-menu-item" onclick="copyHighlightText()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy text
+        </div>
+        <div class="highlight-menu-item delete" onclick="deleteCurrentHighlight()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Delete highlight
+        </div>
     </div>
     
     <!-- Keyboard shortcuts help -->
     <div id="keyboard-help">
-        <div style="font-weight: 600; margin-bottom: 10px;">⌨️ Keyboard Shortcuts</div>
+        <div style="font-weight: 600; margin-bottom: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+                <path d="M18 10v4H6v-4H4v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4h-2zM6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4H6z"></path>
+            </svg>
+            Keyboard Shortcuts
+        </div>
         <div class="shortcut-row"><span class="shortcut-key"><span class="kbd">←</span> <span class="kbd">→</span></span><span>Prev/Next chapter</span></div>
         <div class="shortcut-row"><span class="shortcut-key"><span class="kbd">⌘/Ctrl</span>+<span class="kbd">F</span></span><span>Search</span></div>
         <div class="shortcut-row"><span class="shortcut-key"><span class="kbd">⌘/Ctrl</span>+<span class="kbd">B</span></span><span>Bookmarks</span></div>
@@ -976,10 +1046,25 @@
 
     <!-- TTS Controls floating bar -->
     <div id="tts-controls">
-        <button class="tts-control-btn" id="tts-prev-btn" onclick="ttsPrevParagraph()" title="Previous paragraph">⏮️
+        <button class="tts-control-btn" id="tts-prev-btn" onclick="ttsPrevParagraph()" title="Previous paragraph">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                <line x1="5" y1="19" x2="5" y2="5"></line>
+            </svg>
         </button>
-        <button class="tts-control-btn" id="tts-play-btn" onclick="ttsTogglePlay()" title="Play/Pause">▶️</button>
-        <button class="tts-control-btn" id="tts-next-btn" onclick="ttsNextParagraph()" title="Next paragraph">⏭️
+        <button class="tts-control-btn" id="tts-play-btn" onclick="ttsTogglePlay()" title="Play/Pause">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+        </button>
+        <button class="tts-control-btn" id="tts-next-btn" onclick="ttsNextParagraph()" title="Next paragraph">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19"></line>
+            </svg>
         </button>
         <span class="tts-progress-text" id="tts-progress">0 / 0</span>
         <div class="tts-speed-control">
@@ -988,13 +1073,23 @@
                    onchange="ttsSetSpeed(this.value)">
             <span class="tts-speed-label" id="tts-speed-value">1x</span>
         </div>
-        <button class="tts-control-btn" id="tts-stop-btn" onclick="ttsStop()" title="Stop">⏹️</button>
+        <button class="tts-control-btn" id="tts-stop-btn" onclick="ttsStop()" title="Stop">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <rect x="9" y="9" width="6" height="6"></rect>
+            </svg>
+        </button>
     </div>
     
     <!-- Bookmarks/Highlights Panel -->
     <div id="bookmarks-panel">
         <div class="panel-header">
-            <span class="panel-title">📚 Your Notes</span>
+            <span class="panel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                           style="vertical-align: middle; margin-right: 8px;"><path
+                    d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path
+                    d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Your Notes</span>
             <button class="panel-close" onclick="toggleBookmarksPanel()">✕</button>
         </div>
         <div class="panel-tabs">
@@ -1015,7 +1110,15 @@
             <div class="search-header">
                 <div class="search-input-wrapper">
                     <input type="text" class="search-input" id="search-input" placeholder="Search in this book..." onkeydown="if(event.key==='Enter')performSearch()">
-                    <button class="search-btn" onclick="performSearch()">🔍 Search</button>
+                    <button class="search-btn" onclick="performSearch()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Search
+                    </button>
                 </div>
             </div>
             <div class="search-results" id="search-results">
@@ -1042,14 +1145,25 @@
     <div id="vocabulary-panel">
         <div class="vocab-header">
             <div class="panel-header" style="padding: 0; border: none;">
-                <span class="panel-title">📖 Vocabulary</span>
+                <span class="panel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                               stroke-linejoin="round"
+                                               style="vertical-align: middle; margin-right: 8px;"><path
+                        d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path
+                        d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Vocabulary</span>
                 <button class="panel-close" onclick="toggleVocabularyPanel()">✕</button>
             </div>
             <input type="text" class="vocab-search" id="vocab-search" placeholder="Search saved words..." oninput="filterVocabulary()">
         </div>
         <div class="vocab-list" id="vocab-list">
             <div class="empty-state">
-                <div class="empty-state-icon">📖</div>
+                <div class="empty-state-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </div>
                 <div class="empty-state-text">No saved words yet</div>
                 <div class="empty-state-hint">Double-click any word to look it up and save it</div>
             </div>
@@ -1063,7 +1177,12 @@
     <div id="annotations-panel">
         <div class="annot-header">
             <div class="panel-header" style="padding: 0; border: none;">
-                <span class="panel-title">📝 Annotations</span>
+                <span class="panel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                               stroke-linejoin="round"
+                                               style="vertical-align: middle; margin-right: 8px;"><path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Annotations</span>
                 <button class="panel-close" onclick="toggleAnnotationsPanel()">✕</button>
             </div>
             <div class="annot-tabs">
@@ -1075,20 +1194,40 @@
         </div>
         <div class="annot-list" id="annot-list">
             <div class="empty-state">
-                <div class="empty-state-icon">📝</div>
+                <div class="empty-state-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </div>
                 <div class="empty-state-text">No annotations yet</div>
                 <div class="empty-state-hint">Add notes to your highlights and bookmarks</div>
             </div>
         </div>
         <div class="annot-export">
-            <button class="annot-export-btn" onclick="exportAnnotations()">📤 Export Annotations</button>
+            <button class="annot-export-btn" onclick="exportAnnotations()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Export Annotations
+            </button>
         </div>
     </div>
     
     <!-- Session History Panel -->
     <div id="session-history-panel">
         <div class="session-stats" id="session-stats">
-            <div class="session-stats-title">📊 Your Reading Stats</div>
+            <div class="session-stats-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M18 20V10m-6 10V4M6 20v-4"></path>
+                </svg>
+                Your Reading Stats
+            </div>
             <div class="session-stats-grid">
                 <div class="stat-item">
                     <div class="stat-value" id="stat-total-time">0h</div>
@@ -1109,12 +1248,22 @@
             </div>
         </div>
         <div class="panel-header">
-            <span class="panel-title">📚 Reading History</span>
+            <span class="panel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                           style="vertical-align: middle; margin-right: 8px;"><path
+                    d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path
+                    d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Reading History</span>
             <button class="panel-close" onclick="toggleSessionPanel()">✕</button>
         </div>
         <div class="session-list" id="session-list">
             <div class="empty-state">
-                <div class="empty-state-icon">📚</div>
+                <div class="empty-state-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                </div>
                 <div class="empty-state-text">No reading sessions yet</div>
                 <div class="empty-state-hint">Your reading history will appear here</div>
             </div>
@@ -1125,7 +1274,15 @@
     <div id="add-note-modal">
         <div class="note-modal-content">
             <div class="note-modal-header">
-                <h3>📝 Add Note</h3>
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 8px;">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Add Note
+                </h3>
                 <button class="panel-close" onclick="closeNoteModal()">✕</button>
             </div>
             <div class="note-modal-body">
@@ -1143,7 +1300,15 @@
     <div id="ai-settings-modal">
         <div class="ai-modal-content">
             <div class="ai-modal-header">
-                <h3>🤖 AI Assistant Settings</h3>
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 8px;">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M12 7v10M7 12h10"></path>
+                    </svg>
+                    AI Assistant Settings
+                </h3>
                 <button class="ai-modal-close" onclick="closeAISettings()">✕</button>
             </div>
             <div class="ai-modal-body">
@@ -1168,7 +1333,13 @@
                         <select id="ai-model" style="flex: 1;">
                             <option value="">Select a model...</option>
                         </select>
-                        <button class="ai-btn ai-btn-secondary" onclick="refreshModels()" title="Refresh model list">🔄
+                        <button class="ai-btn ai-btn-secondary" onclick="refreshModels()" title="Refresh model list">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
                         </button>
                     </div>
                     <div class="hint">Available models from your AI provider</div>
@@ -1194,8 +1365,25 @@
             <div class="ai-modal-footer">
                 <div id="ai-connection-status"></div>
                 <div style="display: flex; gap: 10px;">
-                    <button class="ai-btn ai-btn-secondary" onclick="testAIConnection()">🔌 Test Connection</button>
-                    <button class="ai-btn ai-btn-primary" onclick="saveAISettings()">💾 Save Settings</button>
+                    <button class="ai-btn ai-btn-secondary" onclick="testAIConnection()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                        Test Connection
+                    </button>
+                    <button class="ai-btn ai-btn-primary" onclick="saveAISettings()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save Settings
+                    </button>
                 </div>
             </div>
         </div>
@@ -1204,16 +1392,39 @@
     <!-- AI Chat Sidebar -->
     <div id="ai-chat-sidebar">
         <div class="chat-header">
-            <div class="chat-header-title">💬 AI Chat</div>
+            <div class="chat-header-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                AI Chat
+            </div>
             <div class="chat-header-actions">
-                <button class="chat-header-btn" onclick="openAISettings()" title="Settings">⚙️</button>
-                <button class="chat-header-btn" onclick="clearChatHistory()" title="Clear chat">🗑️</button>
+                <button class="chat-header-btn" onclick="openAISettings()" title="Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                <button class="chat-header-btn" onclick="clearChatHistory()" title="Clear chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
                 <button class="chat-header-btn" onclick="toggleChatSidebar()" title="Close">✕</button>
             </div>
         </div>
         <div class="chat-messages" id="chat-messages">
             <div class="chat-empty">
-                <div class="chat-empty-icon">💭</div>
+                <div class="chat-empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    </svg>
+                </div>
                 <div class="chat-empty-text">Start a conversation</div>
                 <div class="chat-empty-hint">Ask questions about what you're reading or select text and send it to
                     chat
@@ -1251,13 +1462,57 @@
         
         <!-- Quick actions toolbar -->
         <div style="display: flex; gap: 8px; padding: 10px 15px; border-bottom: 1px solid #eee; flex-wrap: wrap;">
-            <button onclick="openSearch()" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;" title="Search (Ctrl/⌘+F)">🔍 Search</button>
-            <button onclick="toggleBookmarksPanel()" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;" title="Bookmarks & Highlights">📚 Notes</button>
+            <button onclick="openSearch()"
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+                    title="Search (Ctrl/⌘+F)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search
+            </button>
+            <button onclick="toggleBookmarksPanel()"
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+                    title="Bookmarks & Highlights">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Notes
+            </button>
         </div>
         <div style="display: flex; gap: 8px; padding: 5px 15px 10px; border-bottom: 1px solid #eee; flex-wrap: wrap;">
-            <button onclick="toggleVocabularyPanel()" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;" title="Vocabulary List">📖 Vocab</button>
-            <button onclick="toggleAnnotationsPanel()" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;" title="Annotations">📝 Annot</button>
-            <button onclick="toggleSessionPanel()" style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;" title="Reading History">📊 Stats</button>
+            <button onclick="toggleVocabularyPanel()"
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+                    title="Vocabulary List">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                Vocab
+            </button>
+            <button onclick="toggleAnnotationsPanel()"
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+                    title="Annotations">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Annot
+            </button>
+            <button onclick="toggleSessionPanel()"
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+                    title="Reading History">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M18 20V10m-6 10V4M6 20v-4"></path>
+                </svg>
+                Stats
+            </button>
         </div>
 
         <!-- Recursive Macro for TOC -->
@@ -1269,7 +1524,7 @@
                     <!--
                         Matching Logic:
                         If the TOC item filename matches the current chapter filename, mark active.
-                        Ideally we match spine indices, but Reader 3 TOC maps to filenames.
+                        Ideally, we match spine indices, but Reader 3 TOC maps to filenames.
                         We use a simple hash matching logic here.
                     -->
                     {% set is_active = current_chapter.href == item.file_href %}
@@ -1304,16 +1559,68 @@
         <div class="content-container">
             <div class="content-toolbar">
                 {% if is_pdf %}
-                <button class="toolbar-btn" type="button" onclick="copyVisiblePages()" title="Copy text from pages currently visible">📄 Copy Visible</button>
-                <button class="toolbar-btn" type="button" onclick="togglePageJump()" title="Jump to a specific page">🔢 Go to Page</button>
+                    <button class="toolbar-btn" type="button" onclick="copyVisiblePages()"
+                            title="Copy text from pages currently visible">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy Visible
+                    </button>
+                    <button class="toolbar-btn" type="button" onclick="togglePageJump()"
+                            title="Jump to a specific page">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <line x1="4" y1="9" x2="20" y2="9"></line>
+                            <line x1="4" y1="15" x2="20" y2="15"></line>
+                            <line x1="10" y1="3" x2="8" y2="21"></line>
+                            <line x1="16" y1="3" x2="14" y2="21"></line>
+                        </svg>
+                        Go to Page
+                    </button>
                 {% endif %}
-                <button class="toolbar-btn" type="button" onclick="copyAllLoaded()" id="copy-all-btn" title="Copy all loaded content">📋 Copy All</button>
-                <button class="toolbar-btn" type="button" onclick="showBatchClipboard()" id="batch-clipboard-btn" style="display: none;">🗂️ Batch (<span id="batch-count">0</span>)</button>
+                <button class="toolbar-btn" type="button" onclick="copyAllLoaded()" id="copy-all-btn"
+                        title="Copy all loaded content">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 6px;">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copy All
+                </button>
+                <button class="toolbar-btn" type="button" onclick="showBatchClipboard()" id="batch-clipboard-btn"
+                        style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 6px;">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    Batch (<span id="batch-count">0</span>)
+                </button>
                 <button class="toolbar-btn ai-toolbar-btn" type="button" onclick="openAISettings()" id="ai-settings-btn"
-                        title="AI Settings">🤖 AI
+                        title="AI Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 6px;">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M12 7v10M7 12h10"></path>
+                    </svg>
+                    AI
                 </button>
                 <button class="toolbar-btn ai-toolbar-btn" type="button" onclick="toggleChatSidebar()" id="ai-chat-btn"
-                        title="AI Chat">💬 Chat
+                        title="AI Chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Chat
                 </button>
             </div>
             <div id="copy-status" aria-live="polite"></div>
@@ -1323,7 +1630,13 @@
                     {{ current_chapter.content | safe }}
                     <div style="text-align: center; margin-top: 15px;">
                         <button class="pdf-copy-text-btn" onclick="copyPageText(this, {{ chapter_index }})" title="Copy all text from this page">
-                            📋 Copy Page Text
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="vertical-align: middle; margin-right: 4px;">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy Page Text
                         </button>
                     </div>
                     <!-- Hidden text content for copying -->
@@ -1358,7 +1671,15 @@
                     <span id="page-count">Page {{ chapter_index + 1 }} of {{ book.spine|length }}</span>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                    <button class="toolbar-btn" onclick="scrollToTop()" title="Back to top">↑ Top</button>
+                    <button class="toolbar-btn" onclick="scrollToTop()" title="Back to top">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="vertical-align: middle; margin-right: 6px;">
+                            <line x1="12" y1="19" x2="12" y2="5"></line>
+                            <polyline points="5 12 12 5 19 12"></polyline>
+                        </svg>
+                        Top
+                    </button>
                     <button class="toolbar-btn" onclick="loadAllPages()" id="load-all-btn" title="Load all remaining pages">Load All Pages</button>
                 </div>
             </div>
@@ -1590,7 +1911,7 @@
                     // Reload bookmarks to get full data
                     await loadBookmarksFromServer();
                     renderBookmarksList();
-                    showToast('Bookmark added! 🔖');
+                    showToast('Bookmark added!');
                     hideSelectionToolbar();
                 } else {
                     showToast('Failed to add bookmark', 'error');
@@ -1643,7 +1964,7 @@
             if (userBookmarks.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🔖</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></div>
                         <div class="empty-state-text">No bookmarks yet</div>
                         <div class="empty-state-hint">Select text and click the bookmark button to save passages</div>
                     </div>
@@ -1654,7 +1975,7 @@
             list.innerHTML = userBookmarks.map(b => `
                 <div class="bookmark-item">
                     <div class="bookmark-actions">
-                        <button class="bookmark-action-btn" onclick="deleteBookmark('${b.id}')" title="Delete">🗑️</button>
+                        <button class="bookmark-action-btn" onclick="deleteBookmark('${b.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                     <div class="bookmark-title" onclick="goToBookmark(${JSON.stringify(b).replace(/"/g, '&quot;')})">"${escapeHtml(b.title || 'Bookmark')}"</div>
                     <div class="bookmark-meta">Chapter ${b.chapter_index + 1} • ${new Date(b.created_at).toLocaleDateString()}</div>
@@ -1702,7 +2023,7 @@
                     applyHighlightToRange(range, color, result.id);
                     
                     renderHighlightsList();
-                    showToast(`Highlighted in ${color}! ✨`);
+                    showToast(`Highlighted in ${color}!`);
                     hideSelectionToolbar();
                     selection.removeAllRanges();
                 } else {
@@ -1899,7 +2220,7 @@
             if (userHighlights.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🖍️</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></div>
                         <div class="empty-state-text">No highlights yet</div>
                         <div class="empty-state-hint">Select text and choose a color to highlight important passages</div>
                     </div>
@@ -1910,7 +2231,7 @@
             list.innerHTML = userHighlights.map(h => `
                 <div class="highlight-item">
                     <div class="bookmark-actions">
-                        <button class="bookmark-action-btn" onclick="deleteHighlight('${h.id}')" title="Delete">🗑️</button>
+                        <button class="bookmark-action-btn" onclick="deleteHighlight('${h.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                     <div class="highlight-text highlight-${h.color}">"${escapeHtml((h.text || '').substring(0, 150))}${(h.text || '').length > 150 ? '...' : ''}"</div>
                     <div class="bookmark-meta">Chapter ${h.chapter_index + 1} • ${new Date(h.created_at).toLocaleDateString()}</div>
@@ -1959,8 +2280,8 @@
                     a.download = filename;
                     a.click();
                     URL.revokeObjectURL(url);
-                    
-                    showToast('Notes exported! 📁');
+
+                    showToast('Notes exported!');
                 } else {
                     showToast('Export failed', 'error');
                 }
@@ -2019,7 +2340,7 @@
             if (results.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                         <div class="empty-state-text">No results found</div>
                         <div class="empty-state-hint">Try different keywords or check spelling</div>
                     </div>
@@ -2716,7 +3037,7 @@
                                 ${page.content}
                                 <div style="text-align: center; margin-top: 15px;">
                                     <button class="pdf-copy-text-btn" onclick="copyPageText(this, ${page.index})" title="Copy all text from this page">
-                                        📋 Copy Page Text
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy Page Text
                                     </button>
                                 </div>
                                 <div class="pdf-text-content" id="pdf-text-${page.index}">${escapedText}</div>
@@ -3288,7 +3609,7 @@
             if (readingSessions.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📚</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
                         <div class="empty-state-text">No reading sessions yet</div>
                         <div class="empty-state-hint">Your reading history will appear here</div>
                     </div>
@@ -3386,7 +3707,7 @@
                 html += `
                     <div class="dict-actions">
                         <button class="dict-btn dict-btn-primary" onclick="saveToVocabulary('${escapeHtml(word)}', ${JSON.stringify(entry).replace(/'/g, "\\'")}, '${escapeHtml(context)}')">
-                            📖 Save to Vocabulary
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Save to Vocabulary
                         </button>
                         <button class="dict-btn dict-btn-secondary" onclick="closeDictionary()">
                             Close
@@ -3462,7 +3783,7 @@
                 });
                 
                 if (response.ok) {
-                    showToast('Word saved to vocabulary! 📖');
+                    showToast('Word saved to vocabulary!');
                     closeDictionary();
                     
                     // Reload vocabulary
@@ -3494,7 +3815,7 @@
             if (userVocabulary.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📖</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
                         <div class="empty-state-text">No saved words yet</div>
                         <div class="empty-state-hint">Double-click any word to look it up and save it</div>
                     </div>
@@ -3505,7 +3826,7 @@
             
             list.innerHTML = userVocabulary.map(w => `
                 <div class="vocab-item">
-                    <button class="vocab-delete" onclick="deleteVocabWord('${w.id}')" title="Delete">🗑️</button>
+                    <button class="vocab-delete" onclick="deleteVocabWord('${w.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     <div>
                         <span class="vocab-word">${escapeHtml(w.word)}</span>
                         <span class="vocab-pos">${escapeHtml(w.part_of_speech || '')}</span>
@@ -3566,7 +3887,7 @@
             if (annotations.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></div>
                         <div class="empty-state-text">No annotations ${filter === 'chapter' ? 'in this chapter' : 'yet'}</div>
                         <div class="empty-state-hint">Add notes to your highlights and bookmarks</div>
                     </div>
@@ -3577,8 +3898,8 @@
             list.innerHTML = annotations.map(a => `
                 <div class="annot-item">
                     <div class="annot-actions">
-                        <button onclick="editAnnotation('${a.id}')" title="Edit">✏️</button>
-                        <button onclick="deleteAnnotation('${a.id}')" title="Delete">🗑️</button>
+                        <button onclick="editAnnotation('${a.id}')" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button onclick="deleteAnnotation('${a.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                     <div class="annot-chapter">Chapter ${a.chapter_index + 1}</div>
                     <div class="annot-text">${escapeHtml(a.note_text)}</div>
@@ -3648,7 +3969,7 @@
                 });
                 
                 if (response.ok) {
-                    showToast('Note saved! 📝');
+                    showToast('Note saved!');
                     closeNoteModal();
                     
                     // Reload annotations
@@ -3701,7 +4022,7 @@
                     a.download = `${bookId}_annotations.md`;
                     a.click();
                     URL.revokeObjectURL(url);
-                    showToast('Annotations exported! 📤');
+                    showToast('Annotations exported!');
                 }
             } catch (error) {
                 console.error('Export failed:', error);
@@ -3902,7 +4223,7 @@
                 if (response.ok) {
                     aiSettings = {...aiSettings, ...settings};
                     updateAIButtonIndicator();
-                    showToast('AI settings saved! 🤖');
+                    showToast('AI settings saved!');
                     closeAISettings();
                 } else {
                     showToast('Failed to save settings', 'error');
@@ -3945,7 +4266,7 @@
             if (chatMessages.length === 0) {
                 container.innerHTML = `
                     <div class="chat-empty">
-                        <div class="chat-empty-icon">💭</div>
+                        <div class="chat-empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></div>
                         <div class="chat-empty-text">Start a conversation</div>
                         <div class="chat-empty-hint">Ask questions about what you're reading or select text and send it to chat</div>
                     </div>
@@ -4119,8 +4440,6 @@
         });
 
         // ===== TEXT-TO-SPEECH (TTS) FUNCTIONS =====
-        // Supports both Orpheus TTS (via LM Studio) and browser Web Speech API
-
         let ttsState = {
             isPlaying: false,
             isPaused: false,
@@ -4129,17 +4448,15 @@
             utterance: null,
             speed: 1.0,
             voice: null,
-            // Orpheus TTS state
             orpheusAvailable: false,
             orpheusVoices: [],
             orpheusVoice: 'tara',
-            useOrpheus: false,  // User preference
-            currentAudio: null  // For Orpheus audio playback
+            useOrpheus: false,
+            currentAudio: null
         };
+        let ttsQueue = [];
 
-        // Initialize TTS - check Orpheus availability and browser support
         async function initTTS() {
-            // Check if Orpheus TTS is available
             try {
                 const response = await fetch('/api/tts/status');
                 if (response.ok) {
@@ -4148,7 +4465,7 @@
                     ttsState.orpheusVoices = data.voices || [];
                     ttsState.orpheusVoice = data.default_voice || 'tara';
                     if (data.available) {
-                        ttsState.useOrpheus = true;  // Prefer Orpheus if available
+                        ttsState.useOrpheus = true;
                         console.log('Orpheus TTS available with voices:', data.voices);
                     }
                 }
@@ -4156,7 +4473,6 @@
                 console.log('Orpheus TTS not available, using browser TTS');
             }
 
-            // Initialize browser TTS as fallback
             if ('speechSynthesis' in window) {
                 speechSynthesis.onvoiceschanged = () => {
                     const voices = speechSynthesis.getVoices();
@@ -4170,32 +4486,24 @@
             return ttsState.orpheusAvailable || ('speechSynthesis' in window);
         }
 
-        // Inject speaker icons next to paragraphs in book content
         function injectSpeakerIcons() {
             const bookContent = document.getElementById('book-content');
             if (!bookContent) return;
 
-            // Find all paragraphs and text-containing elements
             const textElements = bookContent.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
-
             ttsState.paragraphs = [];
 
             textElements.forEach((el, index) => {
-                // Skip empty elements
                 const text = el.textContent.trim();
                 if (!text || text.length < 10) return;
-
-                // Skip if already wrapped
                 if (el.parentElement.classList.contains('tts-paragraph-wrapper')) return;
 
-                // Create wrapper
                 const wrapper = document.createElement('div');
                 wrapper.className = 'tts-paragraph-wrapper';
 
-                // Create speaker button
                 const speakerBtn = document.createElement('button');
                 speakerBtn.className = 'tts-speaker-btn';
-                speakerBtn.innerHTML = '🔊';
+                speakerBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>';
                 speakerBtn.title = 'Read aloud';
                 speakerBtn.dataset.paragraphIndex = ttsState.paragraphs.length;
                 speakerBtn.onclick = (e) => {
@@ -4204,12 +4512,10 @@
                     ttsStartFromParagraph(parseInt(speakerBtn.dataset.paragraphIndex));
                 };
 
-                // Wrap the element
                 el.parentNode.insertBefore(wrapper, el);
                 wrapper.appendChild(speakerBtn);
                 wrapper.appendChild(el);
 
-                // Store paragraph reference
                 ttsState.paragraphs.push({
                     element: el,
                     wrapper: wrapper,
@@ -4217,36 +4523,23 @@
                     text: text
                 });
             });
-
             console.log(`TTS: Injected ${ttsState.paragraphs.length} speaker icons`);
         }
 
-        // Start TTS from a specific paragraph
         function ttsStartFromParagraph(index) {
-            // Check if any TTS is available
             if (!ttsState.orpheusAvailable && !('speechSynthesis' in window)) {
                 showToast('Text-to-speech not available', 'error');
                 return;
             }
-
-            // Stop any current speech
             ttsStopCurrentSpeech();
-
-            // Clear previous highlights
             ttsClearHighlights();
-
             ttsState.currentParagraphIndex = index;
             ttsState.isPlaying = true;
             ttsState.isPaused = false;
-
-            // Show controls
             document.getElementById('tts-controls').classList.add('visible');
-
-            // Start speaking
             ttsSpeakCurrentParagraph();
         }
 
-        // Stop current speech (helper)
         function ttsStopCurrentSpeech() {
             if (ttsState.currentAudio) {
                 ttsState.currentAudio.pause();
@@ -4255,10 +4548,10 @@
             if ('speechSynthesis' in window) {
                 speechSynthesis.cancel();
             }
+            ttsQueue = [];
         }
 
-        // Speak the current paragraph using Orpheus TTS
-        async function ttsSpeakWithOrpheus(text) {
+        async function ttsSpeakWithOrpheus(text, onEndCallback) {
             try {
                 const response = await fetch('/api/tts/generate', {
                     method: 'POST',
@@ -4268,48 +4561,37 @@
                         voice: ttsState.orpheusVoice
                     })
                 });
-
                 const data = await response.json();
-
                 if (!data.success) {
                     console.error('Orpheus TTS error:', data.error);
                     return false;
                 }
-
-                // Create audio from base64 data
                 const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
                 const audioUrl = URL.createObjectURL(audioBlob);
                 const audio = new Audio(audioUrl);
                 audio.playbackRate = ttsState.speed;
-
-                // Set up event handlers
                 audio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
                     ttsState.currentAudio = null;
                     if (ttsState.isPlaying && !ttsState.isPaused) {
-                        ttsState.currentParagraphIndex++;
-                        ttsSpeakCurrentParagraph();
+                        if (onEndCallback) onEndCallback();
                     }
                 };
-
                 audio.onerror = (e) => {
                     console.error('Audio playback error:', e);
                     URL.revokeObjectURL(audioUrl);
                     ttsState.currentAudio = null;
                     showToast('Audio playback error', 'error');
                 };
-
                 ttsState.currentAudio = audio;
                 await audio.play();
                 return true;
-
             } catch (error) {
                 console.error('Orpheus TTS request failed:', error);
                 return false;
             }
         }
 
-        // Speak the current paragraph
         async function ttsSpeakCurrentParagraph() {
             if (ttsState.currentParagraphIndex >= ttsState.paragraphs.length) {
                 ttsStop();
@@ -4318,50 +4600,63 @@
             }
 
             const paragraph = ttsState.paragraphs[ttsState.currentParagraphIndex];
-
-            // Highlight current paragraph
             ttsClearHighlights();
             paragraph.element.classList.add('tts-speaking-text');
             paragraph.button.classList.add('speaking');
-
-            // Scroll paragraph into view
             paragraph.element.scrollIntoView({behavior: 'smooth', block: 'center'});
-
-            // Update progress
             ttsUpdateProgress();
+            document.getElementById('tts-play-btn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
-            // Update play button
-            document.getElementById('tts-play-btn').innerHTML = '⏸️';
+            const sentences = paragraph.text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [paragraph.text];
+            ttsQueue = sentences.filter(s => s.trim().length > 0);
 
-            // Try Orpheus TTS first if available and enabled
             if (ttsState.useOrpheus && ttsState.orpheusAvailable) {
-                const success = await ttsSpeakWithOrpheus(paragraph.text);
-                if (success) return;
-                // Fall back to browser TTS if Orpheus fails
-                console.log('Falling back to browser TTS');
+                speakNextInQueueOrpheus();
+            } else {
+                speakNextInQueueBrowser();
             }
+        }
 
-            // Use browser speech synthesis
+        async function speakNextInQueueOrpheus() {
+            if (ttsQueue.length === 0) {
+                if (ttsState.isPlaying && !ttsState.isPaused) {
+                    ttsState.currentParagraphIndex++;
+                    ttsSpeakCurrentParagraph();
+                }
+                return;
+            }
+            const text = ttsQueue.shift();
+            const success = await ttsSpeakWithOrpheus(text, speakNextInQueueOrpheus);
+            if (!success) {
+                console.log('Orpheus failed, trying browser TTS.');
+                ttsQueue.unshift(text);
+                speakNextInQueueBrowser();
+            }
+        }
+
+        function speakNextInQueueBrowser() {
             if (!('speechSynthesis' in window)) {
                 showToast('No TTS available', 'error');
                 ttsStop();
                 return;
             }
-
-            const utterance = new SpeechSynthesisUtterance(paragraph.text);
-            utterance.rate = ttsState.speed;
-            utterance.pitch = 1;
-            if (ttsState.voice) {
-                utterance.voice = ttsState.voice;
-            }
-
-            utterance.onend = () => {
+            if (ttsQueue.length === 0) {
                 if (ttsState.isPlaying && !ttsState.isPaused) {
                     ttsState.currentParagraphIndex++;
                     ttsSpeakCurrentParagraph();
                 }
+                return;
+            }
+            const text = ttsQueue.shift();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsState.speed;
+            utterance.pitch = 1;
+            if (ttsState.voice) utterance.voice = ttsState.voice;
+            utterance.onend = () => {
+                if (ttsState.isPlaying && !ttsState.isPaused) {
+                    speakNextInQueueBrowser();
+                }
             };
-
             utterance.onerror = (e) => {
                 console.error('TTS error:', e);
                 if (e.error !== 'canceled') {
@@ -4369,100 +4664,69 @@
                     ttsStop();
                 }
             };
-
             ttsState.utterance = utterance;
             speechSynthesis.speak(utterance);
         }
 
-        // Toggle play/pause
         function ttsTogglePlay() {
             if (!ttsState.isPlaying) {
-                // Start from beginning if not playing
                 if (ttsState.paragraphs.length > 0) {
                     ttsStartFromParagraph(ttsState.currentParagraphIndex);
                 }
                 return;
             }
-
             if (ttsState.isPaused) {
-                // Resume
-                if (ttsState.currentAudio) {
-                    ttsState.currentAudio.play();
-                } else if ('speechSynthesis' in window) {
-                    speechSynthesis.resume();
-                }
+                if (ttsState.currentAudio) ttsState.currentAudio.play();
+                else if ('speechSynthesis' in window) speechSynthesis.resume();
                 ttsState.isPaused = false;
-                document.getElementById('tts-play-btn').innerHTML = '⏸️';
+                document.getElementById('tts-play-btn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
             } else {
-                // Pause
-                if (ttsState.currentAudio) {
-                    ttsState.currentAudio.pause();
-                } else if ('speechSynthesis' in window) {
-                    speechSynthesis.pause();
-                }
+                if (ttsState.currentAudio) ttsState.currentAudio.pause();
+                else if ('speechSynthesis' in window) speechSynthesis.pause();
                 ttsState.isPaused = true;
-                document.getElementById('tts-play-btn').innerHTML = '▶️';
+                document.getElementById('tts-play-btn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
             }
         }
 
-        // Go to previous paragraph
         function ttsPrevParagraph() {
             if (ttsState.currentParagraphIndex > 0) {
                 ttsStopCurrentSpeech();
                 ttsState.currentParagraphIndex--;
-                if (ttsState.isPlaying) {
-                    ttsSpeakCurrentParagraph();
-                } else {
-                    ttsUpdateProgress();
-                }
+                if (ttsState.isPlaying) ttsSpeakCurrentParagraph();
+                else ttsUpdateProgress();
             }
         }
 
-        // Go to next paragraph
         function ttsNextParagraph() {
             if (ttsState.currentParagraphIndex < ttsState.paragraphs.length - 1) {
                 ttsStopCurrentSpeech();
                 ttsState.currentParagraphIndex++;
-                if (ttsState.isPlaying) {
-                    ttsSpeakCurrentParagraph();
-                } else {
-                    ttsUpdateProgress();
-                }
+                if (ttsState.isPlaying) ttsSpeakCurrentParagraph();
+                else ttsUpdateProgress();
             }
         }
 
-        // Set speech speed
         function ttsSetSpeed(speed) {
             ttsState.speed = parseFloat(speed);
             document.getElementById('tts-speed-value').textContent = speed + 'x';
-
-            // Update current audio playback rate if using Orpheus
             if (ttsState.currentAudio) {
                 ttsState.currentAudio.playbackRate = ttsState.speed;
             }
-
-            // If using browser TTS, restart with new speed
             if (!ttsState.currentAudio && ttsState.isPlaying && !ttsState.isPaused) {
-                if ('speechSynthesis' in window) {
-                    speechSynthesis.cancel();
-                }
+                if ('speechSynthesis' in window) speechSynthesis.cancel();
                 ttsSpeakCurrentParagraph();
             }
         }
 
-        // Stop TTS completely
         function ttsStop() {
             ttsStopCurrentSpeech();
             ttsState.isPlaying = false;
             ttsState.isPaused = false;
             ttsClearHighlights();
-
-            // Hide controls
             document.getElementById('tts-controls').classList.remove('visible');
-            document.getElementById('tts-play-btn').innerHTML = '▶️';
+            document.getElementById('tts-play-btn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
         }
 
-        // Clear all TTS highlights
         function ttsClearHighlights() {
             ttsState.paragraphs.forEach(p => {
                 p.element.classList.remove('tts-speaking-text');
@@ -4470,110 +4734,90 @@
             });
         }
 
-        // Update progress display
         function ttsUpdateProgress() {
             const current = ttsState.currentParagraphIndex + 1;
             const total = ttsState.paragraphs.length;
             document.getElementById('tts-progress').textContent = `${current} / ${total}`;
         }
 
-        // Read selected text aloud
         async function ttsReadSelection() {
             const selection = window.getSelection();
             const selectedText = selection.toString().trim();
-
             if (!selectedText) {
                 showToast('Select text first', 'error');
                 return;
             }
-
-            // Check if any TTS is available
             if (!ttsState.orpheusAvailable && !('speechSynthesis' in window)) {
                 showToast('Text-to-speech not available', 'error');
                 return;
             }
-
-            // Stop any current speech
             ttsStopCurrentSpeech();
-
-            // Clear selection and hide toolbar
             selection.removeAllRanges();
             hideSelectionToolbar();
-
             showToast('Reading selection...');
 
-            // Try Orpheus TTS first if available
+            const sentences = selectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [selectedText];
+            ttsQueue = sentences.filter(s => s.trim().length > 0);
+            ttsState.isPlaying = true;
+            ttsState.isPaused = false;
+
             if (ttsState.useOrpheus && ttsState.orpheusAvailable) {
-                try {
-                    const response = await fetch('/api/tts/generate', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            text: selectedText,
-                            voice: ttsState.orpheusVoice
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        audio.playbackRate = ttsState.speed;
-
-                        audio.onended = () => {
-                            URL.revokeObjectURL(audioUrl);
-                            showToast('Finished reading selection');
-                        };
-
-                        ttsState.currentAudio = audio;
-                        await audio.play();
-                        return;
-                    }
-                } catch (error) {
-                    console.log('Orpheus TTS failed, falling back to browser TTS');
-                }
+                speakNextInQueueOrpheusSelection();
+            } else {
+                speakNextInQueueBrowserSelection();
             }
+        }
 
-            // Fall back to browser speech synthesis
-            if (!('speechSynthesis' in window)) {
-                showToast('Text-to-speech not available', 'error');
+        async function speakNextInQueueOrpheusSelection() {
+            if (ttsQueue.length === 0) {
+                showToast('Finished reading selection');
+                ttsState.isPlaying = false;
                 return;
             }
-
-            const utterance = new SpeechSynthesisUtterance(selectedText);
-            utterance.rate = ttsState.speed;
-            if (ttsState.voice) {
-                utterance.voice = ttsState.voice;
+            const text = ttsQueue.shift();
+            const success = await ttsSpeakWithOrpheus(text, speakNextInQueueOrpheusSelection);
+            if (!success) {
+                console.log('Orpheus failed, falling back to browser TTS for selection.');
+                ttsQueue.unshift(text);
+                speakNextInQueueBrowserSelection();
             }
+        }
 
-            utterance.onend = () => {
+        function speakNextInQueueBrowserSelection() {
+            if (!('speechSynthesis' in window)) {
+                showToast('No TTS available', 'error');
+                ttsState.isPlaying = false;
+                return;
+            }
+            if (ttsQueue.length === 0) {
                 showToast('Finished reading selection');
+                ttsState.isPlaying = false;
+                return;
+            }
+            const text = ttsQueue.shift();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsState.speed;
+            if (ttsState.voice) utterance.voice = ttsState.voice;
+            utterance.onend = () => {
+                if (ttsState.isPlaying) speakNextInQueueBrowserSelection();
             };
-
             speechSynthesis.speak(utterance);
         }
 
-        // Initialize TTS when content loads
         document.addEventListener('DOMContentLoaded', function () {
             initTTS();
-            // Delay injection to allow content to fully render
             setTimeout(injectSpeakerIcons, 500);
         });
 
-        // Re-inject speaker icons when navigating chapters
         const originalLoadChapter = typeof loadChapter !== 'undefined' ? loadChapter : null;
         if (originalLoadChapter) {
             loadChapter = function (...args) {
                 const result = originalLoadChapter.apply(this, args);
-                // Re-inject after chapter loads
                 setTimeout(injectSpeakerIcons, 500);
                 return result;
             };
         }
 
-        // Stop TTS when leaving page
         window.addEventListener('beforeunload', () => {
             ttsStopCurrentSpeech();
         });
