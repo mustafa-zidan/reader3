@@ -5,30 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ book.metadata.title }}</title>
     <style>
-        /* CSS Variables for Theming */
+        /* CSS Variables for Theming - Enhanced Modern Design System */
         :root {
-            --color-bg: #fafafa;
+            /* Color Palette - Modern & Clean */
+            --color-bg: #f8f9fa;
             --color-surface: #ffffff;
-            --color-text: #1a1a2e;
-            --color-text-secondary: #6b7280;
-            --color-border: #e5e7eb;
-            --color-border-light: #f3f4f6;
-            --color-primary: #6366f1;
-            --color-primary-hover: #4f46e5;
+            --color-surface-elevated: #ffffff;
+            --color-text: #1a202c;
+            --color-text-secondary: #718096;
+            --color-text-tertiary: #a0aec0;
+            --color-border: #e2e8f0;
+            --color-border-light: #f7fafc;
+            --color-primary: #5b7be9;
+            --color-primary-hover: #4c6dd8;
+            --color-primary-light: #e8edfc;
             --color-accent: #ec4899;
+            --color-accent-light: #fce7f3;
             --color-success: #10b981;
+            --color-success-light: #d1fae5;
             --color-warning: #f59e0b;
+            --color-warning-light: #fef3c7;
             --color-error: #ef4444;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --color-error-light: #fee2e2;
+            --color-info: #3b82f6;
+            --color-info-light: #dbeafe;
+            
+            /* Shadows - Refined depths */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            /* Border Radius */
             --radius-sm: 6px;
             --radius-md: 10px;
-            --radius-lg: 16px;
-            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-serif: 'Georgia', 'Times New Roman', serif;
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.25s ease;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            
+            /* Typography - Improved readability */
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+            --font-serif: 'Charter', 'Georgia', 'Iowan Old Style', 'Times New Roman', serif;
+            --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            
+            /* Font Sizes - Harmonious scale */
+            --text-xs: 0.75rem;      /* 12px */
+            --text-sm: 0.875rem;     /* 14px */
+            --text-base: 1rem;       /* 16px */
+            --text-lg: 1.125rem;     /* 18px */
+            --text-xl: 1.25rem;      /* 20px */
+            --text-2xl: 1.5rem;      /* 24px */
+            --text-3xl: 1.875rem;    /* 30px */
+            
+            /* Line Heights */
+            --leading-tight: 1.25;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+            --leading-loose: 1.75;
+            
+            /* Spacing Scale */
+            --space-xs: 0.25rem;     /* 4px */
+            --space-sm: 0.5rem;      /* 8px */
+            --space-md: 1rem;        /* 16px */
+            --space-lg: 1.5rem;      /* 24px */
+            --space-xl: 2rem;        /* 32px */
+            --space-2xl: 3rem;       /* 48px */
+            
+            /* Transitions */
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Reading Content - Optimized for comfortable reading */
+            --content-max-width: 720px;
+            --content-line-height: 1.75;
+            --content-font-size: 1.125rem;
         }
 
         /* Layout */
@@ -257,27 +307,32 @@
         /* Empty state illustrations */
         .empty-state {
             text-align: center;
-            padding: 48px 24px;
+            padding: var(--space-2xl) var(--space-lg);
+            background: var(--color-bg);
+            border-radius: var(--radius-lg);
+            margin: var(--space-md) 0;
         }
 
         .empty-state-icon {
             font-size: 3em;
-            margin-bottom: 16px;
-            opacity: 0.3;
+            margin-bottom: var(--space-md);
+            opacity: 0.4;
             color: var(--color-text-secondary);
         }
 
         .empty-state-text {
-            color: var(--color-text-secondary);
-            font-size: 0.95em;
-            margin-bottom: 8px;
-            font-weight: 500;
+            color: var(--color-text);
+            font-size: var(--text-base);
+            margin-bottom: var(--space-sm);
+            font-weight: 600;
+            font-family: var(--font-sans);
         }
 
         .empty-state-hint {
             color: var(--color-text-secondary);
-            font-size: 0.85em;
-            opacity: 0.7;
+            font-size: var(--text-sm);
+            opacity: 0.8;
+            line-height: var(--leading-relaxed);
         }
         
         /* Keyboard shortcuts help */
@@ -328,24 +383,24 @@
         }
 
         .content-container {
-            max-width: 680px;
+            max-width: 780px;
             margin: 0 auto;
-            padding: 48px 40px 80px 40px;
-            line-height: 1.85;
-            font-size: 1.1em;
+            padding: var(--space-2xl) var(--space-xl) 120px var(--space-xl);
+            line-height: var(--leading-relaxed);
+            font-size: var(--text-lg);
             color: var(--color-text);
             background: var(--color-surface);
             position: relative;
             z-index: 1;
             min-height: 100vh;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
+            box-shadow: var(--shadow-sm);
         }
 
         .content-toolbar {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
-            margin-bottom: 24px;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
             font-family: var(--font-sans);
             flex-wrap: wrap;
         }
@@ -354,10 +409,10 @@
             border: 1px solid var(--color-border);
             background: var(--color-surface);
             color: var(--color-text-secondary);
-            padding: 8px 14px;
+            padding: var(--space-sm) var(--space-md);
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: var(--text-sm);
             font-weight: 500;
             transition: all var(--transition-fast);
         }
@@ -431,24 +486,102 @@
         .content-container.fade-out { opacity: 0; transition: opacity 0.3s ease; }
         .content-container.fade-in { opacity: 1; transition: opacity 0.3s ease; }
 
-        /* Content Styling (Basic normalization for the book HTML) */
-        .book-content { position: relative; z-index: 1; }
+        /* Content Styling - Enhanced for Readability */
+        .book-content { 
+            position: relative; 
+            z-index: 1;
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-lg);
+            line-height: var(--content-line-height);
+            font-size: var(--content-font-size);
+            color: var(--color-text);
+        }
 
         .book-content img {
             max-width: 100%;
             height: auto;
             display: block;
-            margin: 24px auto;
-            border-radius: var(--radius-sm);
+            margin: var(--space-xl) auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
         }
 
         .book-content h1, .book-content h2, .book-content h3 {
             font-family: var(--font-sans);
-            margin-top: 1.5em;
+            margin-top: 2em;
+            margin-bottom: 0.75em;
             color: var(--color-text);
-            font-weight: 600;
+            font-weight: 700;
+            line-height: var(--leading-tight);
+            letter-spacing: -0.02em;
         }
-        .book-content p { margin-bottom: 1.5em; text-align: justify; }
+
+        .book-content h1 {
+            font-size: var(--text-3xl);
+            margin-top: 1em;
+        }
+
+        .book-content h2 {
+            font-size: var(--text-2xl);
+        }
+
+        .book-content h3 {
+            font-size: var(--text-xl);
+        }
+
+        .book-content p { 
+            margin-bottom: 1.5em; 
+            text-align: justify;
+            line-height: var(--content-line-height);
+        }
+
+        .book-content a {
+            color: var(--color-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--color-primary-light);
+            transition: border-color var(--transition-fast);
+        }
+
+        .book-content a:hover {
+            border-bottom-color: var(--color-primary);
+        }
+
+        .book-content blockquote {
+            margin: var(--space-xl) 0;
+            padding: var(--space-md) var(--space-lg);
+            border-left: 4px solid var(--color-primary);
+            background: var(--color-primary-light);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-style: italic;
+            color: var(--color-text-secondary);
+        }
+
+        .book-content code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            background: var(--color-bg);
+            padding: 0.2em 0.4em;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .book-content pre {
+            background: var(--color-bg);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            border: 1px solid var(--color-border);
+        }
+
+        .book-content ul, .book-content ol {
+            margin-bottom: 1.5em;
+            padding-left: 2em;
+        }
+
+        .book-content li {
+            margin-bottom: 0.5em;
+        }
 
         /* Navigation Footer */
         .chapter-nav {
@@ -770,24 +903,30 @@
         }
 
         .panel-tab {
-            padding: 8px 14px;
+            padding: var(--space-sm) var(--space-lg);
             border: none;
-            background: var(--color-border-light);
-            border-radius: 20px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: var(--text-sm);
             transition: all var(--transition-fast);
-            font-weight: 500;
+            font-weight: 600;
             color: var(--color-text-secondary);
+            font-family: var(--font-sans);
         }
 
         .panel-tab:hover {
-            background: var(--color-border);
+            background: var(--color-border-light);
+            border-color: var(--color-primary-light);
+            color: var(--color-text);
         }
 
         .panel-tab.active {
             background: var(--color-primary);
             color: white;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
         }
 
         .bookmark-item, .highlight-item {
@@ -2347,18 +2486,18 @@
         }
 
         /* ========================================
-           UNIFIED INSPECTOR PANEL
-           Consolidates Notes, Search, AI Chat, Stats
+           UNIFIED INSPECTOR PANEL - Modern Design
+           Consolidates Notes, Search, Vocabulary, AI Chat, Stats
            ======================================== */
         #inspector-panel {
             position: fixed;
             top: 0;
-            right: -420px;
-            width: 400px;
+            right: -440px;
+            width: 420px;
             height: 100vh;
             background: var(--color-surface);
             border-left: 1px solid var(--color-border);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             z-index: 1000;
             transition: right var(--transition-normal);
             display: flex;
@@ -2371,29 +2510,32 @@
         }
 
         .inspector-header {
-            padding: 16px 20px;
-            background: var(--color-surface);
+            padding: var(--space-lg) var(--space-lg);
+            background: var(--color-surface-elevated);
             border-bottom: 1px solid var(--color-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow-sm);
         }
 
         .inspector-title {
             font-weight: 600;
-            font-size: 0.95em;
+            font-size: var(--text-lg);
             color: var(--color-text);
+            letter-spacing: -0.01em;
         }
 
         .inspector-close {
             background: none;
             border: none;
-            font-size: 1.2em;
+            font-size: var(--text-xl);
             cursor: pointer;
             color: var(--color-text-secondary);
-            padding: 4px 8px;
-            border-radius: var(--radius-sm);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
             transition: all var(--transition-fast);
+            line-height: 1;
         }
 
         .inspector-close:hover {
@@ -2403,32 +2545,34 @@
 
         .inspector-tabs {
             display: flex;
-            padding: 0 16px;
-            background: var(--color-border-light);
-            border-bottom: 1px solid var(--color-border);
+            padding: 0;
+            background: var(--color-bg);
+            border-bottom: 2px solid var(--color-border);
+            overflow-x: auto;
         }
 
         .inspector-tab {
             flex: 1;
-            padding: 12px 8px;
+            min-width: 0;
+            padding: var(--space-md) var(--space-sm);
             border: none;
             background: transparent;
             color: var(--color-text-secondary);
-            font-size: 0.8em;
-            font-weight: 500;
+            font-size: var(--text-xs);
+            font-weight: 600;
             cursor: pointer;
             transition: all var(--transition-fast);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
+            gap: var(--space-xs);
+            border-bottom: 3px solid transparent;
+            position: relative;
         }
 
         .inspector-tab:hover {
             color: var(--color-text);
-            background: rgba(99, 102, 241, 0.05);
+            background: var(--color-primary-light);
         }
 
         .inspector-tab.active {
@@ -2438,23 +2582,34 @@
         }
 
         .inspector-tab svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .inspector-tab-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .inspector-tab-badge {
+            position: absolute;
+            top: var(--space-xs);
+            right: var(--space-xs);
             background: var(--color-accent);
             color: white;
             font-size: 0.65em;
-            padding: 1px 5px;
+            padding: 2px 6px;
             border-radius: 10px;
-            margin-left: 4px;
+            line-height: 1;
         }
 
         .inspector-content {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 20px;
+            padding: var(--space-lg) var(--space-lg);
+            background: var(--color-bg);
         }
 
         .inspector-section {
@@ -2654,6 +2809,17 @@
 
         body.has-header #reading-progress {
             top: 56px;
+        }
+
+        /* ========================================
+           DEPRECATED PANELS - Hidden (Consolidated into Inspector)
+           ======================================== */
+        #bookmarks-panel,
+        #vocabulary-panel,
+        #annotations-panel,
+        #session-history-panel,
+        #ai-chat-sidebar {
+            display: none !important;
         }
 
     </style>
@@ -3257,35 +3423,43 @@
         <button class="inspector-close" onclick="toggleInspector()">✕</button>
     </div>
     <div class="inspector-tabs">
-        <button class="inspector-tab active" onclick="switchInspectorTab('notes')" data-tab="notes">
+        <button class="inspector-tab active" onclick="switchInspectorTab('notes')" data-tab="notes" title="Bookmarks, Highlights & Annotations">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                  stroke-linejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
             </svg>
-            Notes
+            <span class="inspector-tab-label">Notes</span>
         </button>
-        <button class="inspector-tab" onclick="switchInspectorTab('search')" data-tab="search">
+        <button class="inspector-tab" onclick="switchInspectorTab('search')" data-tab="search" title="Search in book">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                  stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            Search
+            <span class="inspector-tab-label">Search</span>
         </button>
-        <button class="inspector-tab" onclick="switchInspectorTab('chat')" data-tab="chat">
+        <button class="inspector-tab" onclick="switchInspectorTab('vocab')" data-tab="vocab" title="Saved vocabulary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span class="inspector-tab-label">Vocab</span>
+        </button>
+        <button class="inspector-tab" onclick="switchInspectorTab('chat')" data-tab="chat" title="AI Assistant">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                  stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            AI Chat
+            <span class="inspector-tab-label">AI</span>
         </button>
-        <button class="inspector-tab" onclick="switchInspectorTab('stats')" data-tab="stats">
+        <button class="inspector-tab" onclick="switchInspectorTab('stats')" data-tab="stats" title="Reading statistics">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                  stroke-linejoin="round">
                 <path d="M18 20V10m-6 10V4M6 20v-4"></path>
             </svg>
-            Stats
+            <span class="inspector-tab-label">Stats</span>
         </button>
     </div>
     <div class="inspector-content">
@@ -3324,6 +3498,22 @@
                        onkeydown="if(event.key==='Enter')sendInspectorChat()">
                 <button class="ai-btn ai-btn-primary" onclick="sendInspectorChat()" style="padding: 10px 16px;">Send
                 </button>
+            </div>
+        </div>
+
+        <!-- Vocabulary Section -->
+        <div class="inspector-section" id="inspector-vocab">
+            <input type="text" class="inspector-search-input" id="inspector-vocab-search"
+                   placeholder="Search saved words..." oninput="filterInspectorVocabulary()" style="margin-bottom: var(--space-md);">
+            <div id="inspector-vocab-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📚</div>
+                    <div class="empty-state-text">No saved words yet</div>
+                    <div class="empty-state-hint">Double-click any word to look it up and save it</div>
+                </div>
+            </div>
+            <div class="vocab-stats" id="inspector-vocab-stats" style="margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--color-border); text-align: center; font-size: var(--text-sm); color: var(--color-text-secondary);">
+                <strong>0</strong> words saved
             </div>
         </div>
 
@@ -3371,11 +3561,12 @@
         <a href="/" class="nav-home">← Back to Library</a>
         <div class="nav-header">{{ book.metadata.title }}</div>
         
-        <!-- Quick actions toolbar -->
-        <div style="display: flex; gap: 8px; padding: 10px 15px; border-bottom: 1px solid #eee; flex-wrap: wrap;">
-            <button onclick="openSearch()"
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
-                    title="Search (Ctrl/⌘+F)">
+        <!-- Quick actions toolbar - Simplified -->
+        <div style="display: flex; gap: 8px; padding: 10px 15px; border-bottom: 1px solid var(--color-border); flex-wrap: wrap;">
+            <button onclick="openInspectorTab('search')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85em; font-family: var(--font-sans); transition: all var(--transition-fast);"
+                    onmouseover="this.style.background='var(--color-border-light)'" onmouseout="this.style.background='var(--color-surface)'"
+                    title="Search in book (Ctrl/⌘+F)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -3383,8 +3574,9 @@
                 </svg>
                 Search
             </button>
-            <button onclick="toggleBookmarksPanel()"
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
+            <button onclick="openInspectorTab('notes')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85em; font-family: var(--font-sans); transition: all var(--transition-fast);"
+                    onmouseover="this.style.background='var(--color-border-light)'" onmouseout="this.style.background='var(--color-surface)'"
                     title="Bookmarks & Highlights">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
@@ -3394,10 +3586,11 @@
                 Notes
             </button>
         </div>
-        <div style="display: flex; gap: 8px; padding: 5px 15px 10px; border-bottom: 1px solid #eee; flex-wrap: wrap;">
-            <button onclick="toggleVocabularyPanel()"
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
-                    title="Vocabulary List">
+        <div style="display: flex; gap: 8px; padding: 5px 15px 10px; border-bottom: 1px solid var(--color-border); flex-wrap: wrap;">
+            <button onclick="openInspectorTab('vocab')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85em; font-family: var(--font-sans); transition: all var(--transition-fast);"
+                    onmouseover="this.style.background='var(--color-border-light)'" onmouseout="this.style.background='var(--color-surface)'"
+                    title="Saved vocabulary">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -3405,19 +3598,20 @@
                 </svg>
                 Vocab
             </button>
-            <button onclick="toggleAnnotationsPanel()"
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
-                    title="Annotations">
+            <button onclick="openInspectorTab('chat')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85em; font-family: var(--font-sans); transition: all var(--transition-fast);"
+                    onmouseover="this.style.background='var(--color-border-light)'" onmouseout="this.style.background='var(--color-surface)'"
+                    title="AI Assistant">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                Annot
+                AI Chat
             </button>
-            <button onclick="toggleSessionPanel()"
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.85em;"
-                    title="Reading History">
+            <button onclick="openInspectorTab('stats')"
+                    style="flex: 1; padding: 10px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85em; font-family: var(--font-sans); transition: all var(--transition-fast);"
+                    onmouseover="this.style.background='var(--color-border-light)'" onmouseout="this.style.background='var(--color-surface)'"
+                    title="Reading statistics">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
                     <path d="M18 20V10m-6 10V4M6 20v-4"></path>
@@ -5172,6 +5366,15 @@
             updateInspectorTabContent('notes');
         }
 
+        // Helper function to open inspector and switch to specific tab
+        function openInspectorTab(tabName) {
+            const panel = document.getElementById('inspector-panel');
+            if (panel) {
+                panel.classList.add('visible');
+                switchInspectorTab(tabName);
+            }
+        }
+
         function updateInspectorTabContent(tabName) {
             switch (tabName) {
                 case 'notes':
@@ -5181,6 +5384,9 @@
                     // Focus search input
                     const searchInput = document.getElementById('inspector-search-input');
                     if (searchInput) searchInput.focus();
+                    break;
+                case 'vocab':
+                    renderInspectorVocabulary();
                     break;
                 case 'chat':
                     // Chat is ready
@@ -5258,6 +5464,63 @@
                     <div class="annot-text">${escapeHtml(a.note_text)}</div>
                 </div>
             `).join('');
+        }
+
+        function renderInspectorVocabulary() {
+            const list = document.getElementById('inspector-vocab-list');
+            const statsEl = document.getElementById('inspector-vocab-stats');
+            
+            if (!list) return;
+
+            if (userVocabulary.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <div class="empty-state-text">No saved words yet</div>
+                        <div class="empty-state-hint">Double-click any word to look it up and save it</div>
+                    </div>
+                `;
+                if (statsEl) statsEl.innerHTML = '<strong>0</strong> words saved';
+                return;
+            }
+
+            list.innerHTML = userVocabulary.map(vocab => `
+                <div class="vocab-item" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-md);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-sm);">
+                        <div>
+                            <strong style="font-size: var(--text-lg); color: var(--color-text);">${escapeHtml(vocab.word)}</strong>
+                            ${vocab.phonetic ? `<span style="color: var(--color-text-secondary); margin-left: var(--space-sm); font-size: var(--text-sm);">${escapeHtml(vocab.phonetic)}</span>` : ''}
+                        </div>
+                        <button onclick="deleteVocabulary('${vocab.word}')" 
+                                style="background: none; border: none; color: var(--color-error); cursor: pointer; padding: var(--space-xs); border-radius: var(--radius-sm); transition: background var(--transition-fast);"
+                                onmouseover="this.style.background='var(--color-error-light)'" onmouseout="this.style.background='none'"
+                                title="Delete word">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    ${vocab.part_of_speech ? `<div style="color: var(--color-primary); font-size: var(--text-xs); text-transform: uppercase; margin-bottom: var(--space-xs); font-weight: 600;">${escapeHtml(vocab.part_of_speech)}</div>` : ''}
+                    ${vocab.definition ? `<div style="color: var(--color-text); margin-bottom: var(--space-sm); line-height: var(--leading-relaxed);">${escapeHtml(vocab.definition)}</div>` : ''}
+                    ${vocab.example ? `<div style="color: var(--color-text-secondary); font-style: italic; font-size: var(--text-sm); margin-bottom: var(--space-sm);">"${escapeHtml(vocab.example)}"</div>` : ''}
+                    ${vocab.context ? `<div style="background: var(--color-bg); padding: var(--space-sm); border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--color-text-secondary);">From: ${escapeHtml(vocab.context.substring(0, 100))}...</div>` : ''}
+                </div>
+            `).join('');
+
+            if (statsEl) {
+                statsEl.innerHTML = `<strong>${userVocabulary.length}</strong> word${userVocabulary.length !== 1 ? 's' : ''} saved`;
+            }
+        }
+
+        function filterInspectorVocabulary() {
+            const searchTerm = document.getElementById('inspector-vocab-search')?.value.toLowerCase() || '';
+            const items = document.querySelectorAll('#inspector-vocab-list .vocab-item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
         }
 
         function renderInspectorStats() {
@@ -6664,24 +6927,93 @@
                 speechSynthesis.cancel();
             }
             ttsQueue = [];
+            // Clear audio buffer
+            ttsAudioBuffer = [];
+            ttsBufferGenerationQueue = Promise.resolve();
+        }
+
+        // TTS Audio Buffering System - Pre-generate audio for smooth playback
+        const TTS_BUFFER_SIZE = 3; // Number of sentences to keep buffered
+        let ttsAudioBuffer = []; // Buffer of pre-generated audio: [{audio: AudioBlob, text: string}]
+        let ttsBufferGenerationQueue = Promise.resolve(); // Sequential generation queue
+
+        async function ttsBufferNextSentence(text) {
+            // Add to generation queue to ensure sequential processing
+            ttsBufferGenerationQueue = ttsBufferGenerationQueue.then(async () => {
+                try {
+                    const response = await fetch('/api/tts/generate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            text: text,
+                            voice: ttsState.orpheusVoice
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
+                        ttsAudioBuffer.push({
+                            audio: audioBlob,
+                            text: text
+                        });
+                        ttsUpdateBufferIndicator();
+                    }
+                } catch (error) {
+                    console.error('Buffer generation error:', error);
+                }
+            });
+            return ttsBufferGenerationQueue;
+        }
+
+        function ttsUpdateBufferIndicator() {
+            // Visual indicator of buffer status (optional enhancement)
+            const buffered = ttsAudioBuffer.length;
+            const total = Math.min(TTS_BUFFER_SIZE, ttsQueue.length + ttsAudioBuffer.length);
+            if (buffered > 0) {
+                console.log(`TTS Buffer: ${buffered}/${total} sentences ready`);
+            }
+        }
+
+        async function ttsMaintainBuffer() {
+            // Keep buffer filled with next sentences from queue
+            while (ttsAudioBuffer.length < TTS_BUFFER_SIZE && ttsQueue.length > ttsAudioBuffer.length) {
+                const nextIndex = ttsAudioBuffer.length;
+                if (nextIndex < ttsQueue.length) {
+                    await ttsBufferNextSentence(ttsQueue[nextIndex]);
+                }
+            }
         }
 
         async function ttsSpeakWithOrpheus(text, onEndCallback) {
             try {
-                const response = await fetch('/api/tts/generate', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        text: text,
-                        voice: ttsState.orpheusVoice
-                    })
-                });
-                const data = await response.json();
-                if (!data.success) {
-                    console.error('Orpheus TTS error:', data.error);
-                    return false;
+                // Check if audio is already buffered
+                let audioBlob = null;
+                const bufferedIndex = ttsAudioBuffer.findIndex(item => item.text === text);
+                
+                if (bufferedIndex !== -1) {
+                    // Use pre-buffered audio
+                    audioBlob = ttsAudioBuffer[bufferedIndex].audio;
+                    ttsAudioBuffer.splice(bufferedIndex, 1); // Remove from buffer
+                    console.log('Using buffered audio');
+                } else {
+                    // Generate audio on-demand (buffer miss)
+                    console.log('Buffer miss - generating audio...');
+                    const response = await fetch('/api/tts/generate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            text: text,
+                            voice: ttsState.orpheusVoice
+                        })
+                    });
+                    const data = await response.json();
+                    if (!data.success) {
+                        console.error('Orpheus TTS error:', data.error);
+                        return false;
+                    }
+                    audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
                 }
-                const audioBlob = await fetch(`data:audio/wav;base64,${data.audio_data}`).then(r => r.blob());
+
                 const audioUrl = URL.createObjectURL(audioBlob);
                 const audio = new Audio(audioUrl);
                 audio.playbackRate = ttsState.speed;
@@ -6700,6 +7032,10 @@
                 };
                 ttsState.currentAudio = audio;
                 await audio.play();
+                
+                // Maintain buffer for upcoming sentences
+                ttsMaintainBuffer();
+                
                 return true;
             } catch (error) {
                 console.error('Orpheus TTS request failed:', error);
@@ -6724,8 +7060,13 @@
 
             const sentences = paragraph.text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [paragraph.text];
             ttsQueue = sentences.filter(s => s.trim().length > 0);
-
+            
+            // Clear old buffer and start pre-buffering
+            ttsAudioBuffer = [];
+            
             if (ttsState.useOrpheus && ttsState.orpheusAvailable) {
+                // Pre-buffer first few sentences before starting playback
+                await ttsMaintainBuffer();
                 speakNextInQueueOrpheus();
             } else {
                 speakNextInQueueBrowser();
